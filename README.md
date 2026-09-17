@@ -53,8 +53,9 @@ Kemudian:
 
 | Cara | Fungsi |
 |---|---|
-| Landing <strong>Rakan Zakat — Landing</strong> | Page template plugin: hero, borang, jenis zakat, FAQ (`/zakat/`) |
-| Elementor widget **Borang Zakat** | Drag terus dalam Elementor (kategori Rakan Zakat) |
+| Landing <strong>Rakan Zakat — Landing</strong> | Page template plugin (`/zakat/`) |
+| Elementor **Borang Zakat** | Drag borang bayar Billplz |
+| Elementor **RZ: Panduan / Kategori / Tiga Langkah / Saluran Rasmi / Impak / FAQ / CTA** | Section Stitch, semua teks/gambar boleh edit |
 | `[rakanzakat_form]` | Borang pembayaran (page, Elementor Shortcode, dll.) |
 | Block **Borang Zakat** | Drag dalam page/post editor |
 | Widget **Rakan Zakat — Borang Bayar** | Sidebar, footer, widget area |

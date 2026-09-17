@@ -58,6 +58,7 @@ class RakanZakat_Plugin {
 		require_once RAKANZAKAT_PATH . 'includes/class-rest.php';
 		require_once RAKANZAKAT_PATH . 'includes/class-shortcode.php';
 		require_once RAKANZAKAT_PATH . 'includes/class-widget.php';
+		require_once RAKANZAKAT_PATH . 'includes/class-sections.php';
 		require_once RAKANZAKAT_PATH . 'includes/class-elementor.php';
 		require_once RAKANZAKAT_PATH . 'includes/class-landing.php';
 		require_once RAKANZAKAT_PATH . 'includes/class-updater.php';

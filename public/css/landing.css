@@ -1,3 +1,22 @@
+.rz-el {
+  color: #1c2e28;
+}
+
+.rz-el h1,
+.rz-el h2 {
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+}
+
+.elementor-widget-rakanzakat_hero .elementor-widget-container,
+.elementor-widget-rakanzakat_form_section .elementor-widget-container,
+.elementor-widget-rakanzakat_steps .elementor-widget-container,
+.elementor-widget-rakanzakat_types .elementor-widget-container,
+.elementor-widget-rakanzakat_faq .elementor-widget-container,
+.elementor-widget-rakanzakat_footer .elementor-widget-container,
+.elementor-widget-rakanzakat_landing .elementor-widget-container {
+  padding: 0;
+}
+
 .rz-landing-body {
   margin: 0;
   background: #f3eee4;

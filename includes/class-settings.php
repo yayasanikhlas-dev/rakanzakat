@@ -94,6 +94,7 @@ class RakanZakat_Settings {
 			'emas'        => __( 'Zakat Emas', 'rakanzakat' ),
 			'saham'       => __( 'Zakat Saham', 'rakanzakat' ),
 			'kwsp'        => __( 'Zakat KWSP', 'rakanzakat' ),
+			'qada'        => __( 'Qada Zakat', 'rakanzakat' ),
 			'pertanian'   => __( 'Zakat Pertanian', 'rakanzakat' ),
 			'lain-lain'   => __( 'Lain-lain / Sumbangan', 'rakanzakat' ),
 		);

@@ -575,7 +575,7 @@ class RakanZakat_Admin {
 			<ul class="rz-list">
 				<li>Landing page: template <strong>Rakan Zakat — Landing</strong><?php echo ! empty( $pages['landing'] ) ? ' — <a href="' . esc_url( get_permalink( $pages['landing'] ) ) . '">buka ' . esc_html( (string) get_permalink( $pages['landing'] ) ) . '</a>. Set sebagai homepage di Settings → Reading kalau nak jadi muka depan.' : ''; ?></li>
 				<li>Borang bayar: <code>[rakanzakat_form]</code><?php echo ! empty( $pages['pay'] ) ? ' — <a href="' . esc_url( get_permalink( $pages['pay'] ) ) . '">buka halaman</a>' : ''; ?></li>
-				<li>Elementor: widget <strong>Borang Zakat</strong> (kategori Rakan Zakat)</li>
+				<li>Elementor (kategori <strong>Rakan Zakat</strong>): Borang Zakat, Panduan &amp; Taksiran, Kategori Zakat, Tiga Langkah, Saluran Rasmi, Impak Komuniti, FAQ, CTA Bayar</li>
 				<li>Widget WP: Appearance → Widgets → <strong>Rakan Zakat — Borang Bayar</strong></li>
 				<li>Block editor: insert block <strong>Borang Zakat</strong></li>
 				<li>Resit: <code>[rakanzakat_receipt]</code></li>

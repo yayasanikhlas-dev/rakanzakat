@@ -37,6 +37,12 @@ class RakanZakat_Shortcode {
 			null
 		);
 		wp_enqueue_style( 'rakanzakat-form', RAKANZAKAT_URL . 'public/css/form.css', array( 'rakanzakat-inter' ), RAKANZAKAT_VERSION );
+		wp_register_style(
+			'rakanzakat-landing',
+			RAKANZAKAT_URL . 'public/css/landing.css',
+			array( 'rakanzakat-form' ),
+			RAKANZAKAT_VERSION
+		);
 		wp_enqueue_script( 'rakanzakat-form', RAKANZAKAT_URL . 'public/js/form.js', array(), RAKANZAKAT_VERSION, true );
 		wp_localize_script(
 			'rakanzakat-form',
@@ -72,7 +78,7 @@ class RakanZakat_Shortcode {
 
 		ob_start();
 		?>
-		<div class="rz-form-wrap js-rakanzakat-form">
+		<div class="rz-form-wrap js-rakanzakat-form" id="bayar">
 			<form class="rz-form" method="post" novalidate>
 				<?php if ( $atts['kicker'] || $atts['title'] || $atts['description'] ) : ?>
 				<div class="rz-form__intro">
