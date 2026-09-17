@@ -35,7 +35,7 @@ class RakanZakat_Plugin {
 		add_action( 'init', array( 'RakanZakat_Shortcode', 'register' ) );
 		add_action( 'init', array( 'RakanZakat_Blocks', 'register_block' ) );
 		add_action( 'widgets_init', array( 'RakanZakat_Blocks', 'register_widget' ) );
-		add_action( 'wp_enqueue_scripts', array( 'RakanZakat_Shortcode', 'enqueue_public' ) );
+		add_action( 'wp_enqueue_scripts', array( 'RakanZakat_Shortcode', 'enqueue_public' ), 40 );
 		RakanZakat_Elementor::init();
 		RakanZakat_Landing::init();
 		add_action( 'admin_init', array( 'RakanZakat_Landing', 'maybe_create_page' ) );

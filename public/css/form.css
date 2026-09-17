@@ -1,283 +1,451 @@
-.rz-form-wrap {
-  --rz-yellow: #f5d000;
-  --rz-ink: #111827;
-  --rz-muted: #4b5563;
-  --rz-label: #4b5563;
-  --rz-line: #e5e7eb;
+/* Copied from stitch_borang_bayar_zakat_form/code.html */
+.elementor-widget-rakanzakat_form .elementor-widget-container {
+  padding: 0 !important;
+}
+
+.js-rakanzakat-form,
+.js-rakanzakat-form * {
+  box-sizing: border-box;
+}
+
+.js-rakanzakat-form {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background-color: #FAFAFA;
+  color: #1F2937;
+  width: 100%;
+  padding: 24px 12px;
+}
+
+.js-rakanzakat-form .rzf-card {
+  width: 100%;
   max-width: 880px;
-  margin: 1.5rem auto;
-  background: #fff;
-  border: 1px solid #f3f4f6;
+  margin: 0 auto;
+  background: #FFFFFF;
   border-radius: 16px;
-  padding: 20px 20px 28px;
-  color: #1f2937;
-  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  border: 1px solid #F3F4F6;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.03);
+  padding: 20px;
 }
 
 @media (min-width: 640px) {
-  .rz-form-wrap { padding: 32px 40px 40px; }
+  .js-rakanzakat-form { padding: 24px; }
+  .js-rakanzakat-form .rzf-card { padding: 32px; }
 }
 
-.widget .rz-form-wrap,
-.wp-block-rakanzakat-form .rz-form-wrap {
+@media (min-width: 768px) {
+  .js-rakanzakat-form { padding: 48px 24px; }
+  .js-rakanzakat-form .rzf-card { padding: 48px; }
+}
+
+.js-rakanzakat-form form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
   margin: 0;
-  max-width: 100%;
-  padding: 20px 16px;
-  box-shadow: none;
 }
 
-.rz-form {
-  display: grid;
-  gap: 22px;
-}
-
-.rz-form__intro h2,
-.rz-receipt h2 {
-  margin: 0 0 8px;
-  font-size: 1.5rem;
-  color: var(--rz-ink);
-}
-
-.rz-form__kicker {
-  margin: 0 0 4px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  font-size: 0.72rem;
-  color: #6b7280;
-}
-
-.rz-form__intro p,
-.rz-receipt p {
-  color: var(--rz-muted);
-}
-
-.rz-row {
+.js-rakanzakat-form .rzf-grid-2,
+.js-rakanzakat-form .rzf-grid-city,
+.js-rakanzakat-form .rzf-grid-zakat {
   display: grid;
   grid-template-columns: 1fr;
   gap: 20px;
 }
 
 @media (min-width: 768px) {
-  .rz-row { grid-template-columns: 1fr 1fr; gap: 24px; }
-  .rz-row--zakat { grid-template-columns: 2fr 1fr; }
-  .rz-row--address { grid-template-columns: 5fr 4fr 3fr; }
+  .js-rakanzakat-form .rzf-grid-2 {
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  .js-rakanzakat-form .rzf-grid-city {
+    grid-template-columns: 5fr 4fr 3fr;
+    gap: 24px;
+  }
+  .js-rakanzakat-form .rzf-grid-zakat {
+    grid-template-columns: 8fr 4fr;
+    gap: 24px;
+  }
 }
 
-.rz-field {
-  display: grid;
-  gap: 8px;
-  margin: 0;
-  border: 0;
-  padding: 0;
-}
-
-.rz-label {
+.js-rakanzakat-form .rzf-label {
   display: flex;
   align-items: center;
-  gap: 4px;
   font-size: 13px;
   font-weight: 400;
-  color: var(--rz-label);
+  color: #4B5563;
+  margin: 0 0 8px;
 }
 
-.rz-req { color: #ef4444; }
+.js-rakanzakat-form .rzf-req {
+  color: #EF4444;
+  margin-left: 2px;
+}
 
-.rz-help {
+.js-rakanzakat-form .rzf-help {
+  margin-left: 6px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #9CA3AF;
+  cursor: help;
+  display: inline-flex;
+}
+
+.js-rakanzakat-form .rzf-help:hover { color: #4B5563; }
+
+.js-rakanzakat-form .rzf-help svg {
   width: 16px;
   height: 16px;
-  border: 0;
-  border-radius: 99px;
-  background: #e5e7eb;
-  color: #6b7280;
-  font: 700 11px/16px Inter, sans-serif;
-  cursor: help;
-  padding: 0;
-}
-
-.rz-form input,
-.rz-form select {
-  width: 100%;
-  box-sizing: border-box;
-  background: #fff;
-  border: 1px solid var(--rz-line);
-  border-radius: 12px;
-  padding: 14px 16px;
-  font: 400 15px/1.4 Inter, sans-serif;
-  color: var(--rz-ink);
-}
-
-.rz-form select {
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236B7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 14px center;
-  background-size: 18px;
-  padding-right: 42px;
-}
-
-.rz-form input:focus,
-.rz-form select:focus {
-  outline: none;
-  border-color: #d1d5db;
-  box-shadow: 0 0 0 3px rgba(245, 208, 0, 0.25);
-}
-
-.rz-form input::placeholder {
-  color: #9ca3af;
-  font-size: 14px;
-}
-
-.rz-phone,
-.rz-amount {
-  position: relative;
+  fill: currentColor;
   display: block;
 }
 
-.rz-phone__prefix {
+/* Exact .custom-input from code.html */
+.js-rakanzakat-form .custom-input {
+  background-color: #FFFFFF !important;
+  border: 1px solid #E5E7EB !important;
+  border-radius: 12px !important;
+  padding: 14px 16px !important;
+  font-size: 15px !important;
+  line-height: 1.4 !important;
+  color: #111827 !important;
+  transition: all 0.15s ease-in-out;
+  width: 100% !important;
+  max-width: 100%;
+  height: auto !important;
+  min-height: 0 !important;
+  margin: 0;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-weight: 400 !important;
+  box-shadow: none !important;
+  outline: none;
+  display: block;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.js-rakanzakat-form .custom-input:focus {
+  outline: none;
+  border-color: #D1D5DB !important;
+  box-shadow: 0 0 0 3px rgba(245, 208, 0, 0.25) !important;
+}
+
+.js-rakanzakat-form .custom-input::placeholder {
+  color: #9CA3AF;
+  font-size: 14px;
+  opacity: 1;
+}
+
+.js-rakanzakat-form select.custom-input {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  background-color: #FFFFFF !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236B7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 14px center !important;
+  background-size: 18px !important;
+  padding-right: 42px !important;
+  cursor: pointer;
+}
+
+.js-rakanzakat-form input[type="number"].custom-input::-webkit-outer-spin-button,
+.js-rakanzakat-form input[type="number"].custom-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.js-rakanzakat-form input[type="number"].custom-input {
+  -moz-appearance: textfield;
+}
+
+.js-rakanzakat-form .rzf-phone {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.js-rakanzakat-form .rzf-phone__prefix {
   position: absolute;
   left: 14px;
-  top: 50%;
-  transform: translateY(-50%);
   display: flex;
   align-items: center;
   gap: 6px;
-  padding-right: 8px;
-  border-right: 1px solid var(--rz-line);
-  font-size: 12px;
-  font-weight: 500;
-  color: #6b7280;
   pointer-events: none;
+  padding-right: 8px;
+  border-right: 1px solid #E5E7EB;
+  z-index: 1;
 }
 
-.rz-phone input { padding-left: 76px; }
+.js-rakanzakat-form .rzf-phone__prefix svg {
+  width: 20px;
+  height: 14px;
+  border-radius: 2px;
+  display: block;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
 
-.rz-amount__prefix {
+.js-rakanzakat-form .rzf-phone__prefix span {
+  font-size: 12px;
+  font-weight: 500;
+  color: #6B7280;
+  padding-left: 2px;
+}
+
+.js-rakanzakat-form .rzf-phone .custom-input {
+  padding-left: 76px !important;
+}
+
+.js-rakanzakat-form .rzf-amount {
+  position: relative;
+}
+
+.js-rakanzakat-form .rzf-amount__prefix {
   position: absolute;
   left: 16px;
   top: 50%;
   transform: translateY(-50%);
-  color: #9ca3af;
+  color: #9CA3AF;
+  font-weight: 600;
+  font-size: 14px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.js-rakanzakat-form .rzf-amount .custom-input {
+  padding-left: 48px !important;
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  color: #111827 !important;
+}
+
+.js-rakanzakat-form .rzf-address {
+  padding-top: 8px;
+}
+
+.js-rakanzakat-form .rzf-address__head {
+  margin-bottom: 16px;
+}
+
+.js-rakanzakat-form .rzf-address__title {
+  margin: 0;
   font-size: 14px;
   font-weight: 600;
-  pointer-events: none;
-}
-
-.rz-amount input {
-  padding-left: 48px;
-  font-weight: 500;
-}
-
-.rz-address__title {
-  margin: 0 0 16px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid #f3f4f6;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.025em;
   text-transform: uppercase;
   color: #374151;
 }
 
-.rz-presets {
+.js-rakanzakat-form .rzf-address__line {
+  height: 1px;
+  background: #F3F4F6;
+  margin-top: 6px;
+}
+
+.js-rakanzakat-form .rzf-address .rzf-grid-2,
+.js-rakanzakat-form .rzf-address .rzf-grid-city {
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .js-rakanzakat-form .rzf-address .rzf-grid-2,
+  .js-rakanzakat-form .rzf-address .rzf-grid-city {
+    gap: 24px;
+  }
+}
+
+.js-rakanzakat-form .rzf-address .rzf-grid-2 {
+  margin-bottom: 16px;
+}
+
+/* Exact .chip-btn from code.html */
+.js-rakanzakat-form .chip-btn {
+  transition: all 0.15s ease;
+  border: 1px solid #E5E7EB !important;
+  background-color: #F9FAFB !important;
+  border-radius: 8px !important;
+  padding: 6px 14px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: #374151 !important;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  cursor: pointer;
+  height: auto !important;
+  min-height: 0 !important;
+  width: auto;
+  box-shadow: none !important;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.js-rakanzakat-form .chip-btn:hover {
+  background-color: #F3F4F6 !important;
+  border-color: #D1D5DB !important;
+}
+
+.js-rakanzakat-form .chip-btn.active {
+  background-color: #FEF9C3 !important;
+  border-color: #F5D000 !important;
+  color: #854D0E !important;
+  font-weight: 600 !important;
+}
+
+.js-rakanzakat-form .rzf-chips {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 2px;
+  padding-top: 4px;
 }
 
-.rz-preset {
-  border: 1px solid var(--rz-line);
-  background: #f9fafb;
-  border-radius: 8px;
-  padding: 6px 14px;
-  font: 500 13px Inter, sans-serif;
-  color: #374151;
-  cursor: pointer;
+.js-rakanzakat-form .rzf-niat-wrap {
+  padding-top: 12px;
+  border-top: 1px solid #F3F4F6;
 }
 
-.rz-preset:hover {
-  background: #f3f4f6;
-}
-
-.rz-preset.is-active {
-  background: #fef9c3;
-  border-color: var(--rz-yellow);
-  color: #854d0e;
-  font-weight: 600;
-}
-
-.rz-niat-box {
+.js-rakanzakat-form .rzf-niat-box {
   background: rgba(249, 250, 251, 0.7);
-  border: 1px solid #f3f4f6;
   border-radius: 12px;
-  padding: 16px 20px;
+  padding: 16px;
+  border: 1px solid #F3F4F6;
 }
 
-.rz-niat {
+@media (min-width: 640px) {
+  .js-rakanzakat-form .rzf-niat-box { padding: 20px; }
+}
+
+.js-rakanzakat-form .rzf-niat {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+  margin: 0;
+}
+
+.js-rakanzakat-form .rzf-niat input[type="checkbox"] {
+  margin-top: 4px;
+  width: 16px !important;
+  height: 16px !important;
+  min-height: 16px !important;
+  padding: 0 !important;
+  accent-color: #F5D000;
+  border: 1px solid #D1D5DB !important;
+  border-radius: 4px;
+  flex-shrink: 0;
+  background: #FFFFFF !important;
+  box-shadow: none !important;
+  appearance: auto;
+  -webkit-appearance: checkbox;
+}
+
+.js-rakanzakat-form .rzf-niat span {
+  margin-left: 12px;
   font-size: 14px;
   font-weight: 600;
-  color: #1f2937;
-  cursor: pointer;
+  color: #1F2937;
 }
 
-.rz-niat input {
-  width: 16px;
-  height: 16px;
-  margin-top: 2px;
-  accent-color: var(--rz-yellow);
-}
-
-.rz-niat-text {
+.js-rakanzakat-form .rzf-niat-text {
   margin: 10px 0 0 28px;
   font-size: 13.5px;
-  line-height: 1.55;
-  color: #4b5563;
+  line-height: 1.625;
+  color: #4B5563;
+  font-weight: 400;
 }
 
-.rz-actions {
+.js-rakanzakat-form .rzf-niat-text strong {
+  font-weight: 700;
+  color: #111827;
+}
+
+.js-rakanzakat-form .rzf-actions {
+  padding-top: 16px;
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 16px;
 }
 
-.rz-note {
+@media (min-width: 640px) {
+  .js-rakanzakat-form .rzf-actions {
+    flex-direction: row;
+  }
+}
+
+.js-rakanzakat-form .rzf-note {
   margin: 0;
   font-size: 12px;
-  color: #9ca3af;
+  color: #9CA3AF;
+  display: none;
 }
 
-.rz-submit {
-  border: 0;
-  background: var(--rz-yellow);
-  color: #111827;
-  border-radius: 999px;
-  padding: 14px 36px;
-  font: 600 15px Inter, sans-serif;
+@media (min-width: 640px) {
+  .js-rakanzakat-form .rzf-note { display: block; }
+}
+
+.js-rakanzakat-form .rzf-submit {
+  width: 100%;
+  padding: 14px 36px !important;
+  border-radius: 9999px !important;
+  font-weight: 600 !important;
+  font-size: 15px !important;
+  color: #111827 !important;
+  background: #F5D000 !important;
+  border: 0 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
   cursor: pointer;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  height: auto !important;
+  min-height: 0 !important;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  appearance: none;
+  -webkit-appearance: none;
 }
 
-.rz-submit:hover { background: #ebd52a; }
+.js-rakanzakat-form .rzf-submit:hover { background: #ebd52a !important; }
 
-.rz-submit:disabled {
+.js-rakanzakat-form .rzf-submit:disabled {
   opacity: 0.5;
-  cursor: wait;
+  cursor: not-allowed;
 }
 
-.rz-error {
-  color: #991b1b;
-  background: #fef2f2;
+@media (min-width: 640px) {
+  .js-rakanzakat-form .rzf-submit { width: auto; }
+}
+
+.js-rakanzakat-form .rz-error {
+  color: #991B1B;
+  background: #FEF2F2;
   padding: 10px 12px;
   border-radius: 10px;
   margin: 0;
   font-size: 14px;
 }
+
+.js-rakanzakat-form.rz-receipt {
+  background: transparent;
+  padding: 0;
+}
+
+.js-rakanzakat-form.rz-receipt .rzf-card,
+.rz-receipt {
+  max-width: 880px;
+  margin: 0 auto;
+  background: #FFFFFF;
+  border-radius: 16px;
+  border: 1px solid #F3F4F6;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.03);
+  padding: 48px;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.rz-receipt h2 {
+  margin: 0 0 8px;
+  font-size: 24px;
+  color: #111827;
+}
+
+.rz-receipt p { color: #4B5563; }
 
 .rz-receipt__meta {
   display: grid;
@@ -289,14 +457,19 @@
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  border-bottom: 1px solid var(--rz-line);
+  border-bottom: 1px solid #E5E7EB;
   padding-bottom: 8px;
 }
 
-.rz-receipt__meta dt { color: #6b7280; }
+.rz-receipt__meta dt { color: #6B7280; margin: 0; }
+.rz-receipt__meta dd { margin: 0; font-weight: 600; color: #111827; }
 
-@media (max-width: 639px) {
-  .rz-actions { justify-content: stretch; }
-  .rz-submit { width: 100%; }
-  .rz-note { display: none; }
+.rz-form__intro h2 { margin: 0 0 8px; font-size: 24px; color: #111827; }
+.rz-form__intro p { margin: 0; color: #4B5563; }
+.rz-form__kicker {
+  margin: 0 0 4px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 12px;
+  color: #6B7280;
 }

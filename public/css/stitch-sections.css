@@ -1,17 +1,6 @@
 .rzs {
-  --rzs-brand: #0b5eda;
-  --rzs-brand-dark: #0047ac;
-  --rzs-deep: #002548;
-  --rzs-yellow: #fee506;
-  --rzs-yellow-hover: #edd500;
-  --rzs-ink: #0f172a;
-  --rzs-muted: #475569;
-  --rzs-border: #e2e8f0;
-  --rzs-soft: #f0f6ff;
-  --rzs-surface: #f8fafc;
-  --rzs-light: #ebf2fe;
   font-family: "Plus Jakarta Sans", Inter, system-ui, sans-serif;
-  color: var(--rzs-ink);
+  color: #0F172A;
   box-sizing: border-box;
 }
 
@@ -33,7 +22,7 @@
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--rzs-brand);
+  color: #0B5EDA;
   margin: 0 0 8px;
 }
 
@@ -41,7 +30,7 @@
   width: 8px;
   height: 8px;
   border-radius: 99px;
-  background: var(--rzs-yellow);
+  background: #FEE506;
 }
 
 .rzs-title {
@@ -50,14 +39,14 @@
   font-weight: 800;
   letter-spacing: -0.025em;
   line-height: 1.15;
-  color: var(--rzs-ink);
+  color: #0F172A;
 }
 
 .rzs-lead {
   margin: 0;
   font-size: 16px;
   line-height: 1.6;
-  color: var(--rzs-muted);
+  color: #475569;
 }
 
 .rzs-head { max-width: 720px; margin-bottom: 36px; }
@@ -74,21 +63,21 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: var(--rzs-brand);
+  color: #0B5EDA;
   font-size: 14px;
   font-weight: 700;
   text-decoration: none;
 }
 
-.rzs-link:hover { color: var(--rzs-brand-dark); }
+.rzs-link:hover { color: #0047AC; }
 
 .rzs-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: var(--rzs-yellow);
-  color: var(--rzs-ink);
+  background: #FEE506;
+  color: #0F172A;
   font-weight: 800;
   font-size: 15px;
   text-decoration: none;
@@ -99,7 +88,7 @@
   box-shadow: 0 8px 20px rgba(254, 229, 6, 0.25);
 }
 
-.rzs-btn:hover { background: var(--rzs-yellow-hover); color: var(--rzs-ink); }
+.rzs-btn:hover { background: #EDD500; color: #0F172A; }
 
 .rzs-btn--sm {
   font-size: 12px;
@@ -112,8 +101,8 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: var(--rzs-light);
-  color: var(--rzs-brand);
+  background: #EBF2FE;
+  color: #0B5EDA;
   border: 1px solid rgba(11, 94, 218, 0.2);
   border-radius: 8px;
   padding: 6px 12px;
@@ -122,13 +111,13 @@
   white-space: nowrap;
 }
 
-.rzs-guide { background: var(--rzs-surface); }
+.rzs-guide { background: #F8FAFC; }
 .rzs-cats { background: #fff; }
-.rzs-steps { background: var(--rzs-soft); }
+.rzs-steps { background: #F0F6FF; }
 .rzs-official { background: #fff; }
-.rzs-impact { background: var(--rzs-surface); }
+.rzs-impact { background: #F8FAFC; }
 .rzs-faq { background: #fff; }
-.rzs-cta { background: var(--rzs-surface); }
+.rzs-cta { background: #F8FAFC; }
 
 .rzs-cards-3,
 .rzs-cards-4,
@@ -143,7 +132,7 @@
 
 .rzs-card {
   background: #fff;
-  border: 1px solid var(--rzs-border);
+  border: 1px solid #E2E8F0;
   border-radius: 16px;
   padding: 24px;
   display: flex;
@@ -153,14 +142,14 @@
   min-height: 100%;
 }
 
-.rzs-card:hover { border-color: var(--rzs-brand); }
+.rzs-card:hover { border-color: #0B5EDA; }
 
 .rzs-icon {
   width: 48px;
   height: 48px;
   border-radius: 12px;
-  background: var(--rzs-light);
-  color: var(--rzs-brand);
+  background: #EBF2FE;
+  color: #0B5EDA;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -201,18 +190,18 @@
   margin: 0 0 16px;
   font-size: 14px;
   line-height: 1.55;
-  color: var(--rzs-muted);
+  color: #475569;
 }
 
 .rzs-cat {
-  background: var(--rzs-surface);
+  background: #F8FAFC;
   padding: 20px;
 }
 
 .rzs-cat .rzs-icon {
   width: 44px;
   height: 44px;
-  background: var(--rzs-brand);
+  background: #0B5EDA;
   color: #fff;
   margin-bottom: 14px;
 }
@@ -226,20 +215,20 @@
   align-items: center;
   gap: 8px;
   padding-top: 12px;
-  border-top: 1px solid var(--rzs-border);
+  border-top: 1px solid #E2E8F0;
 }
 
 .rzs-cat__foot a {
   font-size: 12px;
   font-weight: 600;
-  color: var(--rzs-muted);
+  color: #475569;
 }
 
 .rzs-step-num {
   width: 48px;
   height: 48px;
   border-radius: 12px;
-  background: var(--rzs-brand);
+  background: #0B5EDA;
   color: #fff;
   font-weight: 800;
   font-size: 18px;
@@ -250,8 +239,8 @@
 }
 
 .rzs-step-num.is-accent {
-  background: var(--rzs-yellow);
-  color: var(--rzs-ink);
+  background: #FEE506;
+  color: #0F172A;
 }
 
 .rzs-steps-wrap { text-align: center; }
@@ -269,8 +258,8 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: var(--rzs-light);
-  color: var(--rzs-brand);
+  background: #EBF2FE;
+  color: #0B5EDA;
   border: 1px solid rgba(11, 94, 218, 0.2);
   border-radius: 999px;
   padding: 6px 12px;
@@ -280,7 +269,7 @@
 }
 
 .rzs-cred {
-  background: var(--rzs-surface);
+  background: #F8FAFC;
   border: 2px solid rgba(11, 94, 218, 0.25);
   border-radius: 16px;
   padding: 28px;
@@ -304,7 +293,7 @@
   justify-content: space-between;
   gap: 12px;
   align-items: center;
-  border-bottom: 1px solid var(--rzs-border);
+  border-bottom: 1px solid #E2E8F0;
   padding-bottom: 16px;
   margin-bottom: 16px;
   position: relative;
@@ -315,8 +304,8 @@
   width: 48px;
   height: 48px;
   border-radius: 12px;
-  background: var(--rzs-yellow);
-  color: var(--rzs-brand);
+  background: #FEE506;
+  color: #0B5EDA;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -324,7 +313,7 @@
 }
 
 .rzs-cred__code {
-  background: var(--rzs-brand);
+  background: #0B5EDA;
   color: #fff;
   font-size: 12px;
   font-weight: 700;
@@ -342,11 +331,11 @@
   font-size: 14px;
 }
 
-.rzs-cred dt { color: var(--rzs-muted); margin: 0; }
+.rzs-cred dt { color: #475569; margin: 0; }
 .rzs-cred dd { margin: 0; font-weight: 700; text-align: right; }
 .rzs-tax {
   background: #fff;
-  border: 1px solid var(--rzs-border);
+  border: 1px solid #E2E8F0;
   border-radius: 8px;
   padding: 12px;
   font-size: 12px;
@@ -357,7 +346,7 @@
 
 .rzs-impact-card {
   background: #fff;
-  border: 1px solid var(--rzs-border);
+  border: 1px solid #E2E8F0;
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 4px 20px -2px rgba(11, 94, 218, 0.05);
@@ -379,7 +368,7 @@
   top: 12px;
   left: 12px;
   background: rgba(0, 37, 72, 0.92);
-  color: var(--rzs-yellow);
+  color: #FEE506;
   font-size: 12px;
   font-weight: 700;
   padding: 4px 10px;
@@ -388,7 +377,7 @@
 
 .rzs-impact-card__body { padding: 22px; flex: 1; display: flex; flex-direction: column; }
 .rzs-impact-card__body h3 { margin: 0 0 8px; font-size: 18px; }
-.rzs-impact-card__body p { margin: 0 0 14px; font-size: 12px; color: var(--rzs-muted); line-height: 1.55; flex: 1; }
+.rzs-impact-card__body p { margin: 0 0 14px; font-size: 12px; color: #475569; line-height: 1.55; flex: 1; }
 
 .rzs-impact-card__meta {
   display: flex;
@@ -396,15 +385,15 @@
   align-items: center;
   gap: 8px;
   padding-top: 12px;
-  border-top: 1px solid var(--rzs-border);
+  border-top: 1px solid #E2E8F0;
   font-size: 12px;
   font-weight: 600;
-  color: var(--rzs-brand);
+  color: #0B5EDA;
 }
 
 .rzs-tag-dark {
-  background: var(--rzs-deep);
-  color: var(--rzs-yellow);
+  background: #002548;
+  color: #FEE506;
   font-size: 11px;
   font-weight: 700;
   padding: 3px 8px;
@@ -415,8 +404,8 @@
 .rzs-faq-wrap .rzs-head { text-align: center; margin-left: auto; margin-right: auto; }
 
 .rzs-acc {
-  border: 1px solid var(--rzs-border);
-  background: var(--rzs-surface);
+  border: 1px solid #E2E8F0;
+  background: #F8FAFC;
   border-radius: 12px;
   margin: 0 0 10px;
   overflow: hidden;
@@ -436,7 +425,7 @@
 }
 
 .rzs-acc summary::-webkit-details-marker { display: none; }
-.rzs-acc[open] summary { color: var(--rzs-brand); }
+.rzs-acc[open] summary { color: #0B5EDA; }
 
 .rzs-acc summary::after {
   content: "";
@@ -455,7 +444,7 @@
   padding: 0 20px 16px;
   font-size: 14px;
   line-height: 1.6;
-  color: var(--rzs-muted);
+  color: #475569;
   border-top: 1px solid rgba(226, 232, 240, 0.7);
   padding-top: 12px;
 }
@@ -481,8 +470,8 @@
   width: 56px;
   height: 56px;
   border-radius: 16px;
-  background: var(--rzs-yellow);
-  color: var(--rzs-brand);
+  background: #FEE506;
+  color: #0B5EDA;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -493,7 +482,7 @@
   margin: 16px 0 0;
   font-size: 12px;
   font-weight: 700;
-  color: var(--rzs-yellow);
+  color: #FEE506;
 }
 
 .elementor-widget-rakanzakat_guide .elementor-widget-container,

@@ -24,9 +24,12 @@
   font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
 }
 
-.rz-landing-body .rz-form-wrap {
+.rz-landing-body .rz-form-wrap,
+.rz-landing-body .js-rakanzakat-form {
   margin: 0;
   max-width: none;
+  background: transparent;
+  padding: 0;
 }
 
 .rz-lp {

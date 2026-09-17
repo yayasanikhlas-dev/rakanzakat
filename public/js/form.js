@@ -36,8 +36,8 @@
     var label = form.querySelector(".js-rz-niat-amount");
     if (amount && label) label.textContent = money(amount.value);
     var current = parseFloat(amount && amount.value);
-    form.querySelectorAll(".rz-preset").forEach(function (btn) {
-      btn.classList.toggle("is-active", parseFloat(btn.getAttribute("data-amount")) === current);
+    form.querySelectorAll(".chip-btn").forEach(function (btn) {
+      btn.classList.toggle("active", parseFloat(btn.getAttribute("data-amount")) === current);
     });
   }
 
@@ -59,15 +59,15 @@
   });
 
   document.addEventListener("click", function (e) {
-    var btn = e.target.closest(".rz-preset");
+    var btn = e.target.closest(".chip-btn");
     if (!btn) return;
     var form = btn.closest(".js-rakanzakat-form form");
     if (!form) return;
     e.preventDefault();
-    form.querySelectorAll(".rz-preset").forEach(function (b) {
-      b.classList.remove("is-active");
+    form.querySelectorAll(".chip-btn").forEach(function (b) {
+      b.classList.remove("active");
     });
-    btn.classList.add("is-active");
+    btn.classList.add("active");
     form.querySelector('[name="amount"]').value = btn.getAttribute("data-amount");
     updateNiat(form);
   });
@@ -78,7 +78,7 @@
     e.preventDefault();
 
     var errorEl = form.querySelector(".rz-error");
-    var submit = form.querySelector(".rz-submit");
+    var submit = form.querySelector(".rzf-submit");
     if (errorEl) errorEl.hidden = true;
     if (submit) {
       submit.disabled = true;
