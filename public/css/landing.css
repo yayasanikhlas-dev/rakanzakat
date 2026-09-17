@@ -1,0 +1,241 @@
+.rz-landing-body {
+  margin: 0;
+  background: #f3eee4;
+  color: #1c2e28;
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+}
+
+.rz-landing-body .rz-form-wrap {
+  margin: 0;
+  max-width: none;
+}
+
+.rz-lp {
+  min-height: 100vh;
+}
+
+.rz-lp__nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  padding: 22px 7vw;
+  background: #0e3b2e;
+  color: #f3eee4;
+}
+
+.rz-lp__brand {
+  color: #f3eee4;
+  text-decoration: none;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  font-size: 1.15rem;
+}
+
+.rz-lp__nav nav {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.rz-lp__nav nav a {
+  color: #d9cbb6;
+  text-decoration: none;
+  font-family: system-ui, sans-serif;
+  font-size: 0.92rem;
+}
+
+.rz-lp__nav-cta {
+  background: #f5d000;
+  color: #1c2e28 !important;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+.rz-lp__hero,
+.rz-lp__form,
+.rz-lp__steps,
+.rz-lp__types,
+.rz-lp__faq,
+.rz-lp__foot {
+  padding: 72px 7vw;
+}
+
+.rz-lp__hero {
+  background: #0e3b2e;
+  color: #f3eee4;
+  padding-top: 64px;
+  padding-bottom: 88px;
+}
+
+.rz-lp__eyebrow {
+  margin: 0 0 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-family: system-ui, sans-serif;
+  font-size: 0.72rem;
+  color: #c4a35a;
+}
+
+.rz-lp__hero h1 {
+  margin: 0 0 16px;
+  font-size: clamp(2.2rem, 5vw, 4.2rem);
+  line-height: 1.1;
+  max-width: 16ch;
+  font-weight: 600;
+}
+
+.rz-lp__lead {
+  max-width: 42rem;
+  font-size: 1.15rem;
+  line-height: 1.55;
+  color: #d9cbb6;
+}
+
+.rz-lp__hero-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 28px 0 36px;
+}
+
+.rz-lp__btn {
+  display: inline-block;
+  background: #f5d000;
+  color: #1c2e28;
+  text-decoration: none;
+  font-family: system-ui, sans-serif;
+  font-weight: 700;
+  padding: 12px 20px;
+  border-radius: 999px;
+}
+
+.rz-lp__btn--ghost {
+  background: transparent;
+  color: #f3eee4;
+  border: 1px solid #d9cbb6;
+}
+
+.rz-lp__trust {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  font-family: system-ui, sans-serif;
+  font-size: 0.85rem;
+  color: #d9cbb6;
+}
+
+.rz-lp__form {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.7fr) minmax(320px, 1.3fr);
+  gap: 40px;
+  align-items: start;
+}
+
+.rz-lp__form h2,
+.rz-lp__steps h2,
+.rz-lp__types h2,
+.rz-lp__faq h2 {
+  margin: 0 0 12px;
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+}
+
+.rz-lp__steps {
+  background: #fffaf2;
+}
+
+.rz-lp__steps ol {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  list-style: none;
+  counter-reset: step;
+  padding: 28px 0 0;
+  margin: 0;
+}
+
+.rz-lp__steps li {
+  counter-increment: step;
+  background: #fff;
+  border: 1px solid #e4ddd0;
+  border-radius: 16px;
+  padding: 22px;
+}
+
+.rz-lp__steps li::before {
+  content: counter(step);
+  display: block;
+  font-family: system-ui, sans-serif;
+  color: #c4a35a;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.rz-lp__steps strong {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.rz-lp__steps span,
+.rz-lp__form-copy p,
+.rz-lp__faq p {
+  font-family: system-ui, sans-serif;
+  color: #4b5d56;
+  line-height: 1.5;
+}
+
+.rz-lp__types ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+  list-style: none;
+  padding: 20px 0 0;
+  margin: 0;
+}
+
+.rz-lp__types li {
+  background: #fff;
+  border: 1px solid #e4ddd0;
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-family: system-ui, sans-serif;
+}
+
+.rz-lp__faq details {
+  border-bottom: 1px solid #e4ddd0;
+  padding: 14px 0;
+  font-family: system-ui, sans-serif;
+}
+
+.rz-lp__faq summary {
+  cursor: pointer;
+  font-weight: 650;
+}
+
+.rz-lp__foot {
+  background: #0e3b2e;
+  color: #d9cbb6;
+  font-family: system-ui, sans-serif;
+  font-size: 0.92rem;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (max-width: 900px) {
+  .rz-lp__nav {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .rz-lp__form,
+  .rz-lp__steps ol {
+    grid-template-columns: 1fr;
+  }
+}

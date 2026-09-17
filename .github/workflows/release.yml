@@ -1,0 +1,61 @@
+name: Release plugin
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read plugin version
+        id: ver
+        run: |
+          VERSION=$(grep -m1 "define( 'RAKANZAKAT_VERSION'" rakanzakat.php | sed -E "s/.*'([0-9.]+)'.*/\1/")
+          echo "version=$VERSION"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          if [ -z "$VERSION" ]; then
+            echo "Could not read RAKANZAKAT_VERSION" >&2
+            exit 1
+          fi
+
+      - name: Check existing release
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh release view "v${{ steps.ver.outputs.version }}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "Release v${{ steps.ver.outputs.version }} already exists."
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build plugin zip
+        if: steps.check.outputs.exists == 'false'
+        run: |
+          mkdir -p dist/rakanzakat
+          tar -cf - \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='dist' \
+            --exclude='.gitignore' \
+            --exclude='stitch-form-zakat.md' \
+            . | tar -xf - -C dist/rakanzakat
+          cd dist
+          zip -r rakanzakat.zip rakanzakat
+
+      - name: Create GitHub Release
+        if: steps.check.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "v${{ steps.ver.outputs.version }}" dist/rakanzakat.zip \
+            --title "Rakan Zakat ${{ steps.ver.outputs.version }}" \
+            --notes "Auto-release from main. Upload zip this into WordPress, or biar plugin auto-update."
