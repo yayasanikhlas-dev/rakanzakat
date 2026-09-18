@@ -15,6 +15,9 @@ class RakanZakat_Shortcode {
 	}
 
 	public static function enqueue_public() {
+		if ( get_query_var( 'rz_portal' ) ) {
+			return;
+		}
 		wp_enqueue_script(
 			'rakanzakat-tracker',
 			RAKANZAKAT_URL . 'public/js/tracker.js',

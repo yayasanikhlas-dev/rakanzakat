@@ -584,7 +584,8 @@ class RakanZakat_Admin {
 				<li>Block editor: insert block <strong>Borang Zakat</strong></li>
 				<li>Resit: <code>[rakanzakat_receipt]</code></li>
 				<li>Callback URL (auto): <code><?php echo esc_html( rest_url( 'rakanzakat/v1/billplz/callback' ) ); ?></code></li>
-				<li>Contoh URL iklan: <code><?php echo esc_html( home_url( '/bayar-zakat/?utm_source=fb&utm_medium=cpc&utm_campaign=ramadan' ) ); ?></code></li>
+				<li>Portal admin (tanpa wp-admin): <a href="<?php echo esc_url( home_url( '/admin/' ) ); ?>"><?php echo esc_html( home_url( '/admin/' ) ); ?></a></li>
+				<li>Affiliate area: <a href="<?php echo esc_url( home_url( '/affiliate-area/' ) ); ?>"><?php echo esc_html( home_url( '/affiliate-area/' ) ); ?></a> — link referral <code>?ref=KOD</code></li>
 			</ul>
 		</section>
 		<?php

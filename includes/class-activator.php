@@ -9,17 +9,23 @@ defined( 'ABSPATH' ) || exit;
 
 class RakanZakat_Activator {
 
-	const DB_VERSION = '1.3.0';
+	const DB_VERSION = '1.4.0';
 
 	public static function activate() {
 		self::create_tables();
 		self::seed_options();
 		self::create_pages();
+		self::register_roles();
+		flush_rewrite_rules();
 		require_once RAKANZAKAT_PATH . 'includes/class-landing.php';
 		RakanZakat_Landing::maybe_create_page();
 		if ( ! wp_next_scheduled( 'rakanzakat_daily_rollup' ) ) {
 			wp_schedule_event( time() + HOUR_IN_SECONDS, 'daily', 'rakanzakat_daily_rollup' );
 		}
+		if ( ! class_exists( 'RakanZakat_Portal' ) ) {
+			require_once RAKANZAKAT_PATH . 'includes/class-portal.php';
+		}
+		RakanZakat_Portal::rewrite();
 		flush_rewrite_rules();
 	}
 
@@ -31,6 +37,12 @@ class RakanZakat_Activator {
 	public static function maybe_upgrade() {
 		if ( get_option( 'rakanzakat_db_version' ) !== self::DB_VERSION ) {
 			self::create_tables();
+			self::register_roles();
+			if ( class_exists( 'RakanZakat_Portal' ) ) {
+				RakanZakat_Portal::rewrite();
+			}
+			flush_rewrite_rules();
+			delete_option( 'rakanzakat_rewrite' );
 		}
 	}
 
@@ -76,6 +88,8 @@ class RakanZakat_Activator {
 			landing_page varchar(255) NOT NULL DEFAULT '',
 			referrer varchar(255) NOT NULL DEFAULT '',
 			campaign_id bigint(20) unsigned NULL,
+			affiliate_id bigint(20) unsigned NULL,
+			payout_id bigint(20) unsigned NULL,
 			raw_payload longtext NULL,
 			created_at datetime NOT NULL,
 			updated_at datetime NOT NULL,
@@ -83,6 +97,7 @@ class RakanZakat_Activator {
 			UNIQUE KEY bill_id (bill_id),
 			KEY status_paid (status, paid_at),
 			KEY campaign_id (campaign_id),
+			KEY affiliate_id (affiliate_id),
 			KEY created_at (created_at)
 		) {$charset};";
 
@@ -98,6 +113,7 @@ class RakanZakat_Activator {
 			utm_campaign varchar(100) NOT NULL DEFAULT '',
 			utm_content varchar(100) NOT NULL DEFAULT '',
 			utm_term varchar(100) NOT NULL DEFAULT '',
+			affiliate_id bigint(20) unsigned NULL,
 			landing_page varchar(500) NOT NULL DEFAULT '',
 			is_new_session tinyint(1) NOT NULL DEFAULT 0,
 			ip_hash varchar(64) NOT NULL DEFAULT '',
@@ -106,7 +122,8 @@ class RakanZakat_Activator {
 			PRIMARY KEY  (id),
 			KEY visitor_created (visitor_id, created_at),
 			KEY session_id (session_id),
-			KEY created_at (created_at)
+			KEY created_at (created_at),
+			KEY affiliate_id (affiliate_id)
 		) {$charset};";
 
 		$sql[] = "CREATE TABLE {$p}rz_daily_stats (
@@ -144,6 +161,30 @@ class RakanZakat_Activator {
 			PRIMARY KEY  (id),
 			KEY spend_date (spend_date),
 			KEY campaign_id (campaign_id)
+		) {$charset};";
+
+		$sql[] = "CREATE TABLE {$p}rz_affiliates (
+			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+			user_id bigint(20) unsigned NOT NULL DEFAULT 0,
+			code varchar(64) NOT NULL DEFAULT '',
+			commission_bp int(11) NOT NULL DEFAULT 1000,
+			status varchar(20) NOT NULL DEFAULT 'active',
+			created_at datetime NOT NULL,
+			PRIMARY KEY  (id),
+			UNIQUE KEY code (code),
+			KEY user_id (user_id)
+		) {$charset};";
+
+		$sql[] = "CREATE TABLE {$p}rz_payouts (
+			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+			affiliate_id bigint(20) unsigned NOT NULL DEFAULT 0,
+			amount_sen bigint(20) NOT NULL DEFAULT 0,
+			status varchar(20) NOT NULL DEFAULT 'paid',
+			notes text NULL,
+			paid_at datetime NULL,
+			created_at datetime NOT NULL,
+			PRIMARY KEY  (id),
+			KEY affiliate_id (affiliate_id)
 		) {$charset};";
 
 		foreach ( $sql as $statement ) {
@@ -209,5 +250,29 @@ class RakanZakat_Activator {
 		$settings                   = get_option( 'rakanzakat_settings', array() );
 		$settings['thankyou_page']  = (int) $thanks_id;
 		update_option( 'rakanzakat_settings', $settings );
+	}
+
+	public static function register_roles() {
+		add_role(
+			'rz_manager',
+			__( 'Rakan Zakat Admin', 'rakanzakat' ),
+			array(
+				'read'             => true,
+				'rz_manage_portal' => true,
+			)
+		);
+		add_role(
+			'rz_affiliate',
+			__( 'Rakan Zakat Affiliate', 'rakanzakat' ),
+			array(
+				'read'                => true,
+				'rz_affiliate_portal' => true,
+			)
+		);
+		$admin = get_role( 'administrator' );
+		if ( $admin ) {
+			$admin->add_cap( 'rz_manage_portal' );
+			$admin->add_cap( 'rz_affiliate_portal' );
+		}
 	}
 }

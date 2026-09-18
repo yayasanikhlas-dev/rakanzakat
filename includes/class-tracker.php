@@ -24,6 +24,11 @@ class RakanZakat_Tracker {
 			return false;
 		}
 
+		$page_url = esc_url_raw( $input['page_url'] ?? '' );
+		if ( self::is_portal_url( $page_url ) ) {
+			return false;
+		}
+
 		$settings = RakanZakat_Settings::get_all();
 		if ( empty( $settings['track_admins'] ) && current_user_can( 'manage_options' ) ) {
 			return false;
@@ -39,10 +44,15 @@ class RakanZakat_Tracker {
 			return false;
 		}
 
-		$page_url = esc_url_raw( $input['page_url'] ?? '' );
 		if ( ! $page_url ) {
 			return false;
 		}
+
+		$ref          = sanitize_title( $input['ref'] ?? '' );
+		if ( ! $ref ) {
+			$ref = RakanZakat_Affiliates::request_code();
+		}
+		$affiliate_id = RakanZakat_Affiliates::match_id( $ref, $input['utm_source'] ?? '', $input['utm_campaign'] ?? '' );
 
 		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
 		$ua = isset( $_SERVER['HTTP_USER_AGENT'] ) ? substr( sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ), 0, 255 ) : '';
@@ -73,6 +83,7 @@ class RakanZakat_Tracker {
 				'utm_campaign'   => sanitize_text_field( $input['utm_campaign'] ?? '' ),
 				'utm_content'    => sanitize_text_field( $input['utm_content'] ?? '' ),
 				'utm_term'       => sanitize_text_field( $input['utm_term'] ?? '' ),
+				'affiliate_id'   => $affiliate_id ? $affiliate_id : null,
 				'landing_page'   => esc_url_raw( $input['landing_page'] ?? $page_url ),
 				'is_new_session' => $is_new,
 				'ip_hash'        => hash( 'sha256', $ip . wp_salt( 'auth' ) ),
@@ -217,6 +228,11 @@ class RakanZakat_Tracker {
 				$paid_sen
 			)
 		);
+	}
+
+	private static function is_portal_url( $url ) {
+		$path = (string) wp_parse_url( $url, PHP_URL_PATH );
+		return (bool) preg_match( '#/(admin|affiliate-area)(/|$)#', $path );
 	}
 
 	private static function prune_old_visits() {

@@ -38,6 +38,8 @@ class RakanZakat_Plugin {
 		add_action( 'wp_enqueue_scripts', array( 'RakanZakat_Shortcode', 'enqueue_public' ), 40 );
 		RakanZakat_Elementor::init();
 		RakanZakat_Landing::init();
+		RakanZakat_Affiliates::init();
+		RakanZakat_Portal::init();
 		add_action( 'admin_init', array( 'RakanZakat_Landing', 'maybe_create_page' ) );
 		add_action( 'admin_menu', array( 'RakanZakat_Admin', 'menu' ) );
 		add_action( 'admin_enqueue_scripts', array( 'RakanZakat_Admin', 'assets' ) );
@@ -62,12 +64,14 @@ class RakanZakat_Plugin {
 		require_once RAKANZAKAT_PATH . 'includes/class-elementor.php';
 		require_once RAKANZAKAT_PATH . 'includes/class-landing.php';
 		require_once RAKANZAKAT_PATH . 'includes/class-updater.php';
+		require_once RAKANZAKAT_PATH . 'includes/class-affiliates.php';
+		require_once RAKANZAKAT_PATH . 'includes/class-portal.php';
 		require_once RAKANZAKAT_PATH . 'admin/class-admin.php';
 	}
 
 	public function action_links( $links ) {
-		$url     = admin_url( 'admin.php?page=rakanzakat-settings' );
-		$links[] = '<a href="' . esc_url( $url ) . '">' . esc_html__( 'Tetapan', 'rakanzakat' ) . '</a>';
+		$links[] = '<a href="' . esc_url( home_url( '/admin/' ) ) . '">' . esc_html__( 'Portal Admin', 'rakanzakat' ) . '</a>';
+		$links[] = '<a href="' . esc_url( admin_url( 'admin.php?page=rakanzakat-settings' ) ) . '">' . esc_html__( 'Tetapan', 'rakanzakat' ) . '</a>';
 		return $links;
 	}
 }

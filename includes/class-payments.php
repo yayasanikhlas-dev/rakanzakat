@@ -91,8 +91,13 @@ class RakanZakat_Payments {
 			return new WP_Error( 'rz_rate', __( 'Terlalu banyak cubaan. Sila cuba sebentar lagi.', 'rakanzakat' ), array( 'status' => 429 ) );
 		}
 
-		$utm        = self::sanitize_utm( $input );
+		$utm         = self::sanitize_utm( $input );
 		$campaign_id = RakanZakat_Campaigns::match_id( $utm['utm_campaign'], $utm['utm_source'] );
+		$ref         = sanitize_title( $input['ref'] ?? '' );
+		if ( ! $ref ) {
+			$ref = RakanZakat_Affiliates::request_code();
+		}
+		$affiliate_id = RakanZakat_Affiliates::match_id( $ref, $utm['utm_source'], $utm['utm_campaign'] );
 		$now        = current_time( 'mysql' );
 		$temp_bill  = 'tmp_' . wp_generate_password( 16, false, false );
 
@@ -126,6 +131,7 @@ class RakanZakat_Payments {
 				'landing_page'    => esc_url_raw( $input['landing_page'] ?? '' ),
 				'referrer'        => esc_url_raw( $input['referrer'] ?? '' ),
 				'campaign_id'     => $campaign_id ? $campaign_id : null,
+				'affiliate_id'    => $affiliate_id ? $affiliate_id : null,
 				'created_at'      => $now,
 				'updated_at'      => $now,
 			)

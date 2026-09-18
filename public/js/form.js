@@ -22,6 +22,7 @@
       utm_campaign: p.get("utm_campaign") || sessionStorage.getItem("rz_utm_campaign") || "",
       utm_content: p.get("utm_content") || sessionStorage.getItem("rz_utm_content") || "",
       utm_term: p.get("utm_term") || sessionStorage.getItem("rz_utm_term") || "",
+      ref: p.get("ref") || sessionStorage.getItem("rz_ref") || "",
     };
   }
 

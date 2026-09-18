@@ -1,6 +1,6 @@
 (function () {
   if (typeof RakanZakatTrack === "undefined") return;
-  if (/\/wp-admin(\/|$)/.test(location.pathname)) return;
+  if (/\/(wp-admin|admin|affiliate-area)(\/|$)/.test(location.pathname)) return;
 
   function uid() {
     return "rz_" + Math.random().toString(36).slice(2) + Date.now().toString(36);
@@ -29,6 +29,7 @@
       var val = params.get(key);
       if (val) sessionStorage.setItem("rz_" + key, val);
     });
+    if (params.get("ref")) sessionStorage.setItem("rz_ref", params.get("ref"));
   } catch (e) {
     visitorId = uid();
     sessionId = uid();
@@ -54,6 +55,7 @@
     utm_campaign: new URLSearchParams(location.search).get("utm_campaign") || (sessionStorage.getItem("rz_utm_campaign") || ""),
     utm_content: new URLSearchParams(location.search).get("utm_content") || (sessionStorage.getItem("rz_utm_content") || ""),
     utm_term: new URLSearchParams(location.search).get("utm_term") || (sessionStorage.getItem("rz_utm_term") || ""),
+    ref: new URLSearchParams(location.search).get("ref") || (sessionStorage.getItem("rz_ref") || ""),
   };
 
   fetch(RakanZakatTrack.endpoint, {
