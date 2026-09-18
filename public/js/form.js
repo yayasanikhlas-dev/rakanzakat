@@ -55,7 +55,30 @@
       e.target.value = e.target.value.replace(/[^0-9]/g, "");
       if (e.target.name === "postcode") e.target.value = e.target.value.slice(0, 5);
     }
+    if (e.target.name === "id_number") {
+      var typeEl = form.elements.id_type;
+      if (typeEl && typeEl.value === "mykad") {
+        e.target.value = e.target.value.replace(/[^0-9]/g, "").slice(0, 12);
+      }
+    }
     updateNiat(form);
+  });
+
+  document.addEventListener("change", function (e) {
+    if (!e.target || e.target.name !== "id_type") return;
+    var form = e.target.closest(".js-rakanzakat-form form");
+    if (!form) return;
+    var input = form.querySelector('[name="id_number"]');
+    if (!input) return;
+    var placeholders = {
+      mykad: "Contoh: 900101011234",
+      passport: "Contoh: A12345678",
+      ssm: "Contoh: 202001012345",
+      polis: "No. Polis",
+      tentera: "No. Tentera",
+      lain: "No. pengenalan",
+    };
+    input.placeholder = placeholders[e.target.value] || "No. pengenalan";
   });
 
   document.addEventListener("click", function (e) {
@@ -92,6 +115,7 @@
         email: val(form, "email"),
         mobile: val(form, "mobile"),
         id_type: val(form, "id_type"),
+        id_number: val(form, "id_number"),
         address_1: val(form, "address_1"),
         address_2: val(form, "address_2"),
         city: val(form, "city"),

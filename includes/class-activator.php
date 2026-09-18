@@ -9,7 +9,7 @@ defined( 'ABSPATH' ) || exit;
 
 class RakanZakat_Activator {
 
-	const DB_VERSION = '1.2.0';
+	const DB_VERSION = '1.3.0';
 
 	public static function activate() {
 		self::create_tables();
@@ -52,6 +52,7 @@ class RakanZakat_Activator {
 			payer_mobile varchar(32) NOT NULL DEFAULT '',
 			zakat_type varchar(64) NOT NULL DEFAULT '',
 			id_type varchar(64) NOT NULL DEFAULT '',
+			id_number varchar(64) NOT NULL DEFAULT '',
 			address_1 varchar(191) NOT NULL DEFAULT '',
 			address_2 varchar(191) NOT NULL DEFAULT '',
 			city varchar(100) NOT NULL DEFAULT '',

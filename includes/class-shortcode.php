@@ -163,14 +163,20 @@ class RakanZakat_Shortcode {
 					</div>
 				</div>
 
-				<div>
-					<label class="rzf-label" for="rz-id-type">Jenis Pengenalan <span class="rzf-req">*</span></label>
-					<select class="custom-input" id="rz-id-type" name="id_type" required>
-						<option value="" disabled selected>- Sila Pilih -</option>
-						<?php foreach ( $id_types as $key => $label ) : ?>
-							<option value="<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $label ); ?></option>
-						<?php endforeach; ?>
-					</select>
+				<div class="rzf-grid-2">
+					<div>
+						<label class="rzf-label" for="rz-id-type">Jenis Pengenalan <span class="rzf-req">*</span></label>
+						<select class="custom-input" id="rz-id-type" name="id_type" required>
+							<option value="" disabled selected>- Sila Pilih -</option>
+							<?php foreach ( $id_types as $key => $label ) : ?>
+								<option value="<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $label ); ?></option>
+							<?php endforeach; ?>
+						</select>
+					</div>
+					<div>
+						<label class="rzf-label" for="rz-id-number">No. Pengenalan <span class="rzf-req">*</span></label>
+						<input class="custom-input" id="rz-id-number" type="text" name="id_number" required maxlength="32" autocomplete="off" placeholder="Contoh: 900101011234">
+					</div>
 				</div>
 
 				<div class="rzf-address">
@@ -293,6 +299,9 @@ class RakanZakat_Shortcode {
 				<dl class="rz-receipt__meta">
 					<div><dt>Rujukan</dt><dd><?php echo esc_html( $row->bill_id ); ?></dd></div>
 					<div><dt>Nama</dt><dd><?php echo esc_html( $row->payer_name ); ?></dd></div>
+					<?php if ( ! empty( $row->id_number ) ) : ?>
+						<div><dt>No. Pengenalan</dt><dd><?php echo esc_html( $row->id_number ); ?></dd></div>
+					<?php endif; ?>
 					<div><dt>Jenis</dt><dd><?php echo esc_html( $types[ $row->zakat_type ] ?? $row->zakat_type ); ?></dd></div>
 					<div><dt>Amaun</dt><dd><?php echo esc_html( RakanZakat_Settings::format_money( $row->paid_amount_sen ?: $row->amount_sen ) ); ?></dd></div>
 				</dl>

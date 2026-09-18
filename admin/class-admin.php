@@ -223,8 +223,9 @@ class RakanZakat_Admin {
 				'page'       => (int) ( $_GET['paged'] ?? 1 ),
 			)
 		);
-		$types  = RakanZakat_Settings::zakat_types();
-		$export = admin_url( 'admin-post.php?action=rakanzakat_export' );
+		$types    = RakanZakat_Settings::zakat_types();
+		$id_types = RakanZakat_Settings::id_types();
+		$export   = admin_url( 'admin-post.php?action=rakanzakat_export' );
 
 		self::header( 'Kutipan zakat' );
 		settings_errors( 'rakanzakat' );
@@ -269,6 +270,9 @@ class RakanZakat_Admin {
 						<td>
 							<strong><?php echo esc_html( $row->payer_name ); ?></strong>
 							<div class="rz-muted"><?php echo esc_html( $row->payer_email ); ?></div>
+							<?php if ( ! empty( $row->id_number ) ) : ?>
+								<div class="rz-muted"><?php echo esc_html( ( $id_types[ $row->id_type ] ?? $row->id_type ) . ' · ' . $row->id_number ); ?></div>
+							<?php endif; ?>
 						</td>
 						<td><?php echo esc_html( $types[ $row->zakat_type ] ?? $row->zakat_type ); ?></td>
 						<td><?php echo esc_html( RakanZakat_Settings::format_money( 'paid' === $row->status ? $row->paid_amount_sen : $row->amount_sen ) ); ?></td>

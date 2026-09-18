@@ -23,6 +23,7 @@ class RakanZakat_Payments {
 		$email    = sanitize_email( $input['email'] ?? '' );
 		$mobile   = RakanZakat_Billplz::normalize_mobile( $input['mobile'] ?? '' );
 		$id_type  = sanitize_key( $input['id_type'] ?? '' );
+		$id_number = strtoupper( preg_replace( '/[\s-]+/', '', sanitize_text_field( $input['id_number'] ?? '' ) ) );
 		$address1 = sanitize_text_field( $input['address_1'] ?? '' );
 		$address2 = sanitize_text_field( $input['address_2'] ?? '' );
 		$city     = sanitize_text_field( $input['city'] ?? '' );
@@ -42,6 +43,12 @@ class RakanZakat_Payments {
 		}
 		if ( ! isset( $id_types[ $id_type ] ) ) {
 			return new WP_Error( 'rz_id_type', __( 'Sila pilih jenis pengenalan.', 'rakanzakat' ), array( 'status' => 400 ) );
+		}
+		if ( strlen( $id_number ) < 4 ) {
+			return new WP_Error( 'rz_id_number', __( 'Sila masukkan no. pengenalan.', 'rakanzakat' ), array( 'status' => 400 ) );
+		}
+		if ( 'mykad' === $id_type && ! preg_match( '/^[0-9]{12}$/', $id_number ) ) {
+			return new WP_Error( 'rz_id_number', __( 'No. MyKad mesti 12 digit tanpa sengkang.', 'rakanzakat' ), array( 'status' => 400 ) );
 		}
 		if ( strlen( $address1 ) < 3 ) {
 			return new WP_Error( 'rz_address', __( 'Sila masukkan alamat baris 1.', 'rakanzakat' ), array( 'status' => 400 ) );
@@ -99,6 +106,7 @@ class RakanZakat_Payments {
 				'payer_mobile'    => $mobile,
 				'zakat_type'      => $type,
 				'id_type'         => $id_type,
+				'id_number'       => $id_number,
 				'address_1'       => $address1,
 				'address_2'       => $address2,
 				'city'            => $city,
@@ -134,7 +142,7 @@ class RakanZakat_Payments {
 				'email'       => $email,
 				'mobile'      => $mobile,
 				'amount_sen'  => $amount,
-				'description' => substr( 'Zakat ' . $types[ $type ] . ' ' . $haul . ' - ' . $name, 0, 200 ),
+				'description' => substr( 'Zakat ' . $types[ $type ] . ' ' . $haul . ' - ' . $name . ' (' . $id_number . ')', 0, 200 ),
 				'reference_1' => $types[ $type ],
 				'reference_2' => $haul,
 			)
@@ -223,7 +231,8 @@ class RakanZakat_Payments {
 		}
 		if ( ! empty( $args['search'] ) ) {
 			$like     = '%' . $wpdb->esc_like( $args['search'] ) . '%';
-			$where[]  = '(payer_name LIKE %s OR payer_email LIKE %s OR bill_id LIKE %s)';
+			$where[]  = '(payer_name LIKE %s OR payer_email LIKE %s OR bill_id LIKE %s OR id_number LIKE %s)';
+			$params[] = $like;
 			$params[] = $like;
 			$params[] = $like;
 			$params[] = $like;
@@ -326,7 +335,7 @@ class RakanZakat_Payments {
 		header( 'Content-Disposition: attachment; filename=rakanzakat-kutipan.csv' );
 
 		$out = fopen( 'php://output', 'w' );
-		fputcsv( $out, array( 'id', 'bill_id', 'nama', 'emel', 'telefon', 'jenis', 'amaun', 'status', 'dibayar_pada', 'utm_source', 'utm_campaign' ) );
+		fputcsv( $out, array( 'id', 'bill_id', 'nama', 'emel', 'telefon', 'id_type', 'id_number', 'jenis', 'amaun', 'status', 'dibayar_pada', 'utm_source', 'utm_campaign' ) );
 		foreach ( $rows as $row ) {
 			fputcsv(
 				$out,
@@ -336,6 +345,8 @@ class RakanZakat_Payments {
 					$row['payer_name'],
 					$row['payer_email'],
 					$row['payer_mobile'],
+					$row['id_type'] ?? '',
+					$row['id_number'] ?? '',
 					$row['zakat_type'],
 					number_format( ( (int) $row['paid_amount_sen'] ?: (int) $row['amount_sen'] ) / 100, 2, '.', '' ),
 					$row['status'],
