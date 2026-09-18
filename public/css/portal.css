@@ -693,12 +693,12 @@ body.rzp { min-height: 100vh; }
 	font-weight: 700;
 }
 
-.rzp-card-form input,
+.rzp-card-form input:not([type="checkbox"]):not([type="radio"]),
 .rzp-card-form select,
 .rzp-card-form textarea,
-.rzp-filter input,
-.rzp-login input,
-.rzp-aff-form input {
+.rzp-filter input:not([type="checkbox"]):not([type="radio"]),
+.rzp-login input:not([type="checkbox"]):not([type="radio"]),
+.rzp-aff-form input:not([type="checkbox"]):not([type="radio"]) {
 	width: 100%;
 	height: 44px;
 	border: 1px solid #dae2fd;
@@ -711,9 +711,9 @@ body.rzp { min-height: 100vh; }
 
 .rzp-card-form textarea { height: auto; padding: 10px 12px; }
 
-.rzp-card-form input:focus,
-.rzp-login input:focus,
-.rzp-aff-form input:focus {
+.rzp-card-form input:not([type="checkbox"]):not([type="radio"]):focus,
+.rzp-login input:not([type="checkbox"]):not([type="radio"]):focus,
+.rzp-aff-form input:not([type="checkbox"]):not([type="radio"]):focus {
 	outline: none;
 	background: #fff;
 	border-color: var(--rzp-blue);
@@ -731,8 +731,23 @@ body.rzp { min-height: 100vh; }
 .rzp-switch {
 	display: flex;
 	align-items: center;
-	justify-content: space-between;
-	gap: 12px;
+	justify-content: flex-start;
+	gap: 8px;
+	font-weight: 500;
+}
+
+.rzp-check input[type="checkbox"],
+.rzp-switch input[type="checkbox"],
+.rzp-login input[type="checkbox"],
+.rzp-card-form input[type="checkbox"] {
+	width: 16px;
+	height: 16px;
+	min-width: 16px;
+	margin: 0;
+	padding: 0;
+	accent-color: var(--rzp-blue);
+	flex-shrink: 0;
+	cursor: pointer;
 }
 
 .rzp-tabs {
