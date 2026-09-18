@@ -143,6 +143,228 @@ class RakanZakat_Elementor_Form_Widget extends \Elementor\Widget_Base {
 		);
 
 		$this->end_controls_section();
+		$this->register_form_style_controls();
+	}
+
+	private static function no_global() {
+		return array( 'active' => false );
+	}
+
+	private function register_form_style_controls() {
+		$this->start_controls_section(
+			'style_section',
+			array(
+				'label' => __( 'Seksyen', 'rakanzakat' ),
+				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
+			)
+		);
+		$this->add_control(
+			'form_bg',
+			array(
+				'label'     => __( 'Latar', 'rakanzakat' ),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'global'    => self::no_global(),
+				'selectors' => array(
+					'{{WRAPPER}} .js-rakanzakat-form' => 'background-color: {{VALUE}};',
+				),
+			)
+		);
+		$this->add_control(
+			'card_bg',
+			array(
+				'label'     => __( 'Latar kad borang', 'rakanzakat' ),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'global'    => self::no_global(),
+				'selectors' => array(
+					'{{WRAPPER}} .rzf-card' => 'background-color: {{VALUE}};',
+				),
+			)
+		);
+		$this->add_responsive_control(
+			'form_padding',
+			array(
+				'label'      => __( 'Padding', 'rakanzakat' ),
+				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
+				'size_units' => array( 'px', 'em' ),
+				'selectors'  => array(
+					'{{WRAPPER}} .js-rakanzakat-form' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				),
+			)
+		);
+		$this->end_controls_section();
+
+		$this->start_controls_section(
+			'style_header',
+			array(
+				'label' => __( 'Header', 'rakanzakat' ),
+				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
+			)
+		);
+		$this->add_control(
+			'kicker_color',
+			array(
+				'label'     => __( 'Warna lencana', 'rakanzakat' ),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'global'    => self::no_global(),
+				'selectors' => array(
+					'{{WRAPPER}} .rzf-hero__badge' => 'color: {{VALUE}};',
+				),
+			)
+		);
+		$this->add_control(
+			'title_color',
+			array(
+				'label'     => __( 'Warna tajuk', 'rakanzakat' ),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'global'    => self::no_global(),
+				'selectors' => array(
+					'{{WRAPPER}} .rzf-hero__title' => 'color: {{VALUE}};',
+				),
+			)
+		);
+		$this->add_group_control(
+			\Elementor\Group_Control_Typography::get_type(),
+			array(
+				'name'     => 'title_typo',
+				'selector' => '{{WRAPPER}} .rzf-hero__title',
+				'global'   => self::no_global(),
+			)
+		);
+		$this->add_control(
+			'lead_color',
+			array(
+				'label'     => __( 'Warna penerangan', 'rakanzakat' ),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'global'    => self::no_global(),
+				'selectors' => array(
+					'{{WRAPPER}} .rzf-hero__lead' => 'color: {{VALUE}};',
+				),
+			)
+		);
+		$this->add_group_control(
+			\Elementor\Group_Control_Typography::get_type(),
+			array(
+				'name'     => 'lead_typo',
+				'selector' => '{{WRAPPER}} .rzf-hero__lead',
+				'global'   => self::no_global(),
+			)
+		);
+		$this->end_controls_section();
+
+		$this->start_controls_section(
+			'style_fields',
+			array(
+				'label' => __( 'Medan borang', 'rakanzakat' ),
+				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
+			)
+		);
+		$this->add_control(
+			'label_color',
+			array(
+				'label'     => __( 'Warna label', 'rakanzakat' ),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'global'    => self::no_global(),
+				'selectors' => array(
+					'{{WRAPPER}} .rzf-label' => 'color: {{VALUE}};',
+				),
+			)
+		);
+		$this->add_control(
+			'input_bg',
+			array(
+				'label'     => __( 'Latar input', 'rakanzakat' ),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'global'    => self::no_global(),
+				'selectors' => array(
+					'{{WRAPPER}} .custom-input' => 'background-color: {{VALUE}};',
+				),
+			)
+		);
+		$this->add_control(
+			'input_border',
+			array(
+				'label'     => __( 'Border input', 'rakanzakat' ),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'global'    => self::no_global(),
+				'selectors' => array(
+					'{{WRAPPER}} .custom-input' => 'border-color: {{VALUE}};',
+				),
+			)
+		);
+		$this->add_control(
+			'input_text',
+			array(
+				'label'     => __( 'Teks input', 'rakanzakat' ),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'global'    => self::no_global(),
+				'selectors' => array(
+					'{{WRAPPER}} .custom-input' => 'color: {{VALUE}};',
+				),
+			)
+		);
+		$this->end_controls_section();
+
+		$this->start_controls_section(
+			'style_button',
+			array(
+				'label' => __( 'Butang', 'rakanzakat' ),
+				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
+			)
+		);
+		$this->add_control(
+			'btn_bg',
+			array(
+				'label'     => __( 'Latar', 'rakanzakat' ),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'global'    => self::no_global(),
+				'selectors' => array(
+					'{{WRAPPER}} .rzf-submit' => 'background-color: {{VALUE}} !important;',
+				),
+			)
+		);
+		$this->add_control(
+			'btn_color',
+			array(
+				'label'     => __( 'Teks', 'rakanzakat' ),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'global'    => self::no_global(),
+				'selectors' => array(
+					'{{WRAPPER}} .rzf-submit' => 'color: {{VALUE}} !important;',
+				),
+			)
+		);
+		$this->add_control(
+			'btn_bg_hover',
+			array(
+				'label'     => __( 'Latar hover', 'rakanzakat' ),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'global'    => self::no_global(),
+				'selectors' => array(
+					'{{WRAPPER}} .rzf-submit:hover' => 'background-color: {{VALUE}} !important;',
+				),
+			)
+		);
+		$this->add_group_control(
+			\Elementor\Group_Control_Typography::get_type(),
+			array(
+				'name'     => 'btn_typo',
+				'selector' => '{{WRAPPER}} .rzf-submit',
+				'global'   => self::no_global(),
+			)
+		);
+		$this->add_control(
+			'btn_radius',
+			array(
+				'label'      => __( 'Radius', 'rakanzakat' ),
+				'type'       => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => array( 'px' ),
+				'range'      => array( 'px' => array( 'min' => 0, 'max' => 40 ) ),
+				'selectors'  => array(
+					'{{WRAPPER}} .rzf-submit' => 'border-radius: {{SIZE}}{{UNIT}} !important;',
+				),
+			)
+		);
+		$this->end_controls_section();
 	}
 
 	protected function render() {

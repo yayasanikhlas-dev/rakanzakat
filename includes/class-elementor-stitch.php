@@ -61,6 +61,505 @@ abstract class RakanZakat_Elementor_Stitch_Base extends \Elementor\Widget_Base {
 		}
 	}
 
+	protected function register_style_controls() {
+		$this->style_section();
+		$this->style_heading();
+		$name = $this->get_name();
+		if ( 'rakanzakat_cta' !== $name ) {
+			$this->style_cards();
+		}
+		if ( 'rakanzakat_faq_v2' === $name ) {
+			$this->style_faq();
+		}
+		if ( 'rakanzakat_cta' === $name ) {
+			$this->style_cta_box();
+		}
+		if ( 'rakanzakat_calc' === $name ) {
+			$this->style_calc();
+		}
+		$this->style_buttons();
+		$this->style_chip();
+	}
+
+	private static function no_global() {
+		return array( 'active' => false );
+	}
+
+	private function style_section() {
+		$this->start_controls_section(
+			'style_section',
+			array(
+				'label' => __( 'Seksyen', 'rakanzakat' ),
+				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
+			)
+		);
+		$this->add_group_control(
+			\Elementor\Group_Control_Background::get_type(),
+			array(
+				'name'     => 'section_bg',
+				'selector' => '{{WRAPPER}} .rzs',
+			)
+		);
+		$this->add_responsive_control(
+			'section_padding',
+			array(
+				'label'      => __( 'Padding dalam', 'rakanzakat' ),
+				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
+				'size_units' => array( 'px', 'em', '%' ),
+				'selectors'  => array(
+					'{{WRAPPER}} .rzs-inner' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				),
+			)
+		);
+		$this->end_controls_section();
+	}
+
+	private function style_heading() {
+		$this->start_controls_section(
+			'style_heading',
+			array(
+				'label' => __( 'Tajuk', 'rakanzakat' ),
+				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
+			)
+		);
+		$this->add_control(
+			'kicker_color',
+			array(
+				'label'   => __( 'Warna teks kecil', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::COLOR,
+				'global'  => self::no_global(),
+				'selectors' => array(
+					'{{WRAPPER}} .rzs-kicker' => 'color: {{VALUE}};',
+				),
+			)
+		);
+		$this->add_control(
+			'kicker_dot',
+			array(
+				'label'   => __( 'Warna titik', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::COLOR,
+				'global'  => self::no_global(),
+				'selectors' => array(
+					'{{WRAPPER}} .rzs-kicker i' => 'background: {{VALUE}};',
+				),
+			)
+		);
+		$this->add_group_control(
+			\Elementor\Group_Control_Typography::get_type(),
+			array(
+				'name'     => 'kicker_typo',
+				'label'    => __( 'Tipografi teks kecil', 'rakanzakat' ),
+				'selector' => '{{WRAPPER}} .rzs-kicker',
+				'global'   => self::no_global(),
+			)
+		);
+		$this->add_control(
+			'title_color',
+			array(
+				'label'   => __( 'Warna tajuk', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::COLOR,
+				'global'  => self::no_global(),
+				'selectors' => array(
+					'{{WRAPPER}} .rzs-title' => 'color: {{VALUE}};',
+				),
+			)
+		);
+		$this->add_group_control(
+			\Elementor\Group_Control_Typography::get_type(),
+			array(
+				'name'     => 'title_typo',
+				'label'    => __( 'Tipografi tajuk', 'rakanzakat' ),
+				'selector' => '{{WRAPPER}} .rzs-title',
+				'global'   => self::no_global(),
+			)
+		);
+		$this->add_control(
+			'lead_color',
+			array(
+				'label'   => __( 'Warna penerangan', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::COLOR,
+				'global'  => self::no_global(),
+				'selectors' => array(
+					'{{WRAPPER}} .rzs-lead' => 'color: {{VALUE}};',
+				),
+			)
+		);
+		$this->add_group_control(
+			\Elementor\Group_Control_Typography::get_type(),
+			array(
+				'name'     => 'lead_typo',
+				'label'    => __( 'Tipografi penerangan', 'rakanzakat' ),
+				'selector' => '{{WRAPPER}} .rzs-lead',
+				'global'   => self::no_global(),
+			)
+		);
+		$this->end_controls_section();
+	}
+
+	private function style_cards() {
+		$card = '{{WRAPPER}} .rzs-card, {{WRAPPER}} .rzs-impact-card, {{WRAPPER}} .rzs-calc-card, {{WRAPPER}} .rzs-acc';
+		$this->start_controls_section(
+			'style_cards',
+			array(
+				'label' => __( 'Kad', 'rakanzakat' ),
+				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
+			)
+		);
+		$this->add_control(
+			'card_bg',
+			array(
+				'label'   => __( 'Latar kad', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::COLOR,
+				'global'  => self::no_global(),
+				'selectors' => array(
+					$card => 'background-color: {{VALUE}};',
+				),
+			)
+		);
+		$this->add_control(
+			'card_title_color',
+			array(
+				'label'   => __( 'Warna tajuk kad', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::COLOR,
+				'global'  => self::no_global(),
+				'selectors' => array(
+					'{{WRAPPER}} .rzs-card h3, {{WRAPPER}} .rzs-impact-card h3, {{WRAPPER}} .rzs-cat h3' => 'color: {{VALUE}};',
+				),
+			)
+		);
+		$this->add_group_control(
+			\Elementor\Group_Control_Typography::get_type(),
+			array(
+				'name'     => 'card_title_typo',
+				'label'    => __( 'Tipografi tajuk kad', 'rakanzakat' ),
+				'selector' => '{{WRAPPER}} .rzs-card h3, {{WRAPPER}} .rzs-impact-card h3, {{WRAPPER}} .rzs-cat h3',
+				'global'   => self::no_global(),
+			)
+		);
+		$this->add_control(
+			'card_text_color',
+			array(
+				'label'   => __( 'Warna teks kad', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::COLOR,
+				'global'  => self::no_global(),
+				'selectors' => array(
+					'{{WRAPPER}} .rzs-card p, {{WRAPPER}} .rzs-impact-card p, {{WRAPPER}} .rzs-cat p, {{WRAPPER}} .rzs-calc__points li' => 'color: {{VALUE}};',
+				),
+			)
+		);
+		$this->add_group_control(
+			\Elementor\Group_Control_Typography::get_type(),
+			array(
+				'name'     => 'card_text_typo',
+				'label'    => __( 'Tipografi teks kad', 'rakanzakat' ),
+				'selector' => '{{WRAPPER}} .rzs-card p, {{WRAPPER}} .rzs-impact-card p, {{WRAPPER}} .rzs-cat p',
+				'global'   => self::no_global(),
+			)
+		);
+		$this->add_control(
+			'icon_bg',
+			array(
+				'label'   => __( 'Latar ikon', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::COLOR,
+				'global'  => self::no_global(),
+				'selectors' => array(
+					'{{WRAPPER}} .rzs-icon' => 'background-color: {{VALUE}};',
+				),
+			)
+		);
+		$this->add_control(
+			'icon_color',
+			array(
+				'label'   => __( 'Warna ikon', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::COLOR,
+				'global'  => self::no_global(),
+				'selectors' => array(
+					'{{WRAPPER}} .rzs-icon' => 'color: {{VALUE}};',
+				),
+			)
+		);
+		$this->add_control(
+			'card_radius',
+			array(
+				'label'      => __( 'Radius kad', 'rakanzakat' ),
+				'type'       => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => array( 'px' ),
+				'range'      => array( 'px' => array( 'min' => 0, 'max' => 40 ) ),
+				'selectors'  => array(
+					$card => 'border-radius: {{SIZE}}{{UNIT}};',
+				),
+			)
+		);
+		$this->add_responsive_control(
+			'card_padding',
+			array(
+				'label'      => __( 'Padding kad', 'rakanzakat' ),
+				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
+				'size_units' => array( 'px', 'em' ),
+				'selectors'  => array(
+					$card => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				),
+			)
+		);
+		$this->end_controls_section();
+	}
+
+	private function style_buttons() {
+		$this->start_controls_section(
+			'style_buttons',
+			array(
+				'label' => __( 'Butang', 'rakanzakat' ),
+				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
+			)
+		);
+		$this->start_controls_tabs( 'btn_tabs' );
+		$this->start_controls_tab(
+			'btn_normal',
+			array( 'label' => __( 'Normal', 'rakanzakat' ) )
+		);
+		$this->add_control(
+			'btn_bg',
+			array(
+				'label'   => __( 'Latar', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::COLOR,
+				'global'  => self::no_global(),
+				'selectors' => array(
+					'{{WRAPPER}} .rzs-btn' => 'background-color: {{VALUE}};',
+				),
+			)
+		);
+		$this->add_control(
+			'btn_color',
+			array(
+				'label'   => __( 'Teks', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::COLOR,
+				'global'  => self::no_global(),
+				'selectors' => array(
+					'{{WRAPPER}} .rzs-btn' => 'color: {{VALUE}};',
+				),
+			)
+		);
+		$this->end_controls_tab();
+		$this->start_controls_tab(
+			'btn_hover',
+			array( 'label' => __( 'Hover', 'rakanzakat' ) )
+		);
+		$this->add_control(
+			'btn_bg_hover',
+			array(
+				'label'   => __( 'Latar', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::COLOR,
+				'global'  => self::no_global(),
+				'selectors' => array(
+					'{{WRAPPER}} .rzs-btn:hover' => 'background-color: {{VALUE}};',
+				),
+			)
+		);
+		$this->add_control(
+			'btn_color_hover',
+			array(
+				'label'   => __( 'Teks', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::COLOR,
+				'global'  => self::no_global(),
+				'selectors' => array(
+					'{{WRAPPER}} .rzs-btn:hover' => 'color: {{VALUE}};',
+				),
+			)
+		);
+		$this->end_controls_tab();
+		$this->end_controls_tabs();
+		$this->add_group_control(
+			\Elementor\Group_Control_Typography::get_type(),
+			array(
+				'name'     => 'btn_typo',
+				'selector' => '{{WRAPPER}} .rzs-btn',
+				'global'   => self::no_global(),
+			)
+		);
+		$this->add_control(
+			'btn_radius',
+			array(
+				'label'      => __( 'Radius', 'rakanzakat' ),
+				'type'       => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => array( 'px' ),
+				'range'      => array( 'px' => array( 'min' => 0, 'max' => 40 ) ),
+				'selectors'  => array(
+					'{{WRAPPER}} .rzs-btn' => 'border-radius: {{SIZE}}{{UNIT}};',
+				),
+			)
+		);
+		$this->add_control(
+			'link_color',
+			array(
+				'label'   => __( 'Warna pautan', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::COLOR,
+				'global'  => self::no_global(),
+				'selectors' => array(
+					'{{WRAPPER}} .rzs-link, {{WRAPPER}} .rzs-cat__foot a:not(.rzs-btn)' => 'color: {{VALUE}};',
+				),
+			)
+		);
+		$this->end_controls_section();
+	}
+
+	private function style_chip() {
+		$this->start_controls_section(
+			'style_chip',
+			array(
+				'label' => __( 'Lencana', 'rakanzakat' ),
+				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
+			)
+		);
+		$this->add_control(
+			'chip_bg',
+			array(
+				'label'   => __( 'Latar', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::COLOR,
+				'global'  => self::no_global(),
+				'selectors' => array(
+					'{{WRAPPER}} .rzs-chip' => 'background-color: {{VALUE}};',
+				),
+			)
+		);
+		$this->add_control(
+			'chip_color',
+			array(
+				'label'   => __( 'Teks', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::COLOR,
+				'global'  => self::no_global(),
+				'selectors' => array(
+					'{{WRAPPER}} .rzs-chip' => 'color: {{VALUE}};',
+				),
+			)
+		);
+		$this->end_controls_section();
+	}
+
+	private function style_faq() {
+		$this->start_controls_section(
+			'style_faq',
+			array(
+				'label' => __( 'Soalan FAQ', 'rakanzakat' ),
+				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
+			)
+		);
+		$this->add_control(
+			'faq_q_color',
+			array(
+				'label'   => __( 'Warna soalan', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::COLOR,
+				'global'  => self::no_global(),
+				'selectors' => array(
+					'{{WRAPPER}} .rzs-acc summary' => 'color: {{VALUE}};',
+				),
+			)
+		);
+		$this->add_group_control(
+			\Elementor\Group_Control_Typography::get_type(),
+			array(
+				'name'     => 'faq_q_typo',
+				'selector' => '{{WRAPPER}} .rzs-acc summary',
+				'global'   => self::no_global(),
+			)
+		);
+		$this->add_control(
+			'faq_a_color',
+			array(
+				'label'   => __( 'Warna jawapan', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::COLOR,
+				'global'  => self::no_global(),
+				'selectors' => array(
+					'{{WRAPPER}} .rzs-acc p' => 'color: {{VALUE}};',
+				),
+			)
+		);
+		$this->end_controls_section();
+	}
+
+	private function style_cta_box() {
+		$this->start_controls_section(
+			'style_cta_box',
+			array(
+				'label' => __( 'Kotak CTA', 'rakanzakat' ),
+				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
+			)
+		);
+		$this->add_group_control(
+			\Elementor\Group_Control_Background::get_type(),
+			array(
+				'name'     => 'cta_box_bg',
+				'selector' => '{{WRAPPER}} .rzs-cta-box',
+			)
+		);
+		$this->add_control(
+			'cta_note_color',
+			array(
+				'label'   => __( 'Warna nota', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::COLOR,
+				'global'  => self::no_global(),
+				'selectors' => array(
+					'{{WRAPPER}} .rzs-cta-note' => 'color: {{VALUE}};',
+				),
+			)
+		);
+		$this->end_controls_section();
+	}
+
+	private function style_calc() {
+		$this->start_controls_section(
+			'style_calc',
+			array(
+				'label' => __( 'Kad kalkulator', 'rakanzakat' ),
+				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
+			)
+		);
+		$this->add_control(
+			'calc_card_bg',
+			array(
+				'label'   => __( 'Latar kad', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::COLOR,
+				'global'  => self::no_global(),
+				'selectors' => array(
+					'{{WRAPPER}} .rzs-calc-card' => 'background-color: {{VALUE}};',
+				),
+			)
+		);
+		$this->add_control(
+			'calc_head_color',
+			array(
+				'label'   => __( 'Warna tajuk kad', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::COLOR,
+				'global'  => self::no_global(),
+				'selectors' => array(
+					'{{WRAPPER}} .rzs-calc-card__title' => 'color: {{VALUE}};',
+				),
+			)
+		);
+		$this->add_control(
+			'calc_result_bg',
+			array(
+				'label'   => __( 'Latar hasil', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::COLOR,
+				'global'  => self::no_global(),
+				'selectors' => array(
+					'{{WRAPPER}} .rzs-calc-result' => 'background-color: {{VALUE}};',
+				),
+			)
+		);
+		$this->add_control(
+			'calc_total_color',
+			array(
+				'label'   => __( 'Warna jumlah', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::COLOR,
+				'global'  => self::no_global(),
+				'selectors' => array(
+					'{{WRAPPER}} .rzs-calc-result__sum' => 'color: {{VALUE}};',
+				),
+			)
+		);
+		$this->end_controls_section();
+	}
+
 	protected function icon_options() {
 		return array(
 			'help'     => 'Soalan',
@@ -183,6 +682,7 @@ class RakanZakat_Elementor_Guide_Widget extends RakanZakat_Elementor_Stitch_Base
 			)
 		);
 		$this->end_controls_section();
+		$this->register_style_controls();
 	}
 
 	protected function render() {
@@ -379,6 +879,7 @@ class RakanZakat_Elementor_Cats_Widget extends RakanZakat_Elementor_Stitch_Base 
 			)
 		);
 		$this->end_controls_section();
+		$this->register_style_controls();
 	}
 
 	protected function render() {
@@ -480,6 +981,7 @@ class RakanZakat_Elementor_Tiga_Widget extends RakanZakat_Elementor_Stitch_Base 
 			)
 		);
 		$this->end_controls_section();
+		$this->register_style_controls();
 	}
 
 	protected function render() {
@@ -673,6 +1175,7 @@ class RakanZakat_Elementor_Official_Widget extends RakanZakat_Elementor_Stitch_B
 			)
 		);
 		$this->end_controls_section();
+		$this->register_style_controls();
 	}
 
 	protected function render() {
@@ -812,6 +1315,7 @@ class RakanZakat_Elementor_Impact_Widget extends RakanZakat_Elementor_Stitch_Bas
 			)
 		);
 		$this->end_controls_section();
+		$this->register_style_controls();
 	}
 
 	protected function render() {
@@ -898,6 +1402,7 @@ class RakanZakat_Elementor_Faq2_Widget extends RakanZakat_Elementor_Stitch_Base 
 			)
 		);
 		$this->end_controls_section();
+		$this->register_style_controls();
 	}
 
 	protected function render() {
@@ -955,6 +1460,7 @@ class RakanZakat_Elementor_Cta_Widget extends RakanZakat_Elementor_Stitch_Base {
 			)
 		);
 		$this->end_controls_section();
+		$this->register_style_controls();
 	}
 
 	protected function render() {
@@ -1108,6 +1614,7 @@ class RakanZakat_Elementor_Calc_Widget extends RakanZakat_Elementor_Stitch_Base 
 			)
 		);
 		$this->end_controls_section();
+		$this->register_style_controls();
 	}
 
 	protected function render() {
