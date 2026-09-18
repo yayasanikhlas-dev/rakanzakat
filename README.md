@@ -55,6 +55,7 @@ Kemudian:
 |---|---|
 | Landing <strong>Rakan Zakat — Landing</strong> | Page template plugin (`/zakat/`) |
 | Elementor **Borang Zakat** | Drag borang bayar Billplz |
+| Elementor **RZ: Kalkulator Zakat** | Section kira zakat (kiri teks, kanan kalkulator) |
 | Elementor **RZ: Panduan / Kategori / Tiga Langkah / Saluran Rasmi / Impak / FAQ / CTA** | Section Stitch, semua teks/gambar boleh edit |
 | `[rakanzakat_form]` | Borang pembayaran (page, Elementor Shortcode, dll.) |
 | Block **Borang Zakat** | Drag dalam page/post editor |

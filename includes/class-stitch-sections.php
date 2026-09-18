@@ -37,6 +37,7 @@ class RakanZakat_Stitch_Sections {
 			'lock'     => '<path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>',
 			'verified' => '<path d="M23 12l-2.44-2.79.34-3.69-3.61-.82-1.89-3.2L12 2.96 8.6 1.5 6.71 4.69 3.1 5.5l.34 3.7L1 12l2.44 2.79-.34 3.7 3.61.82L8.6 22.5l3.4-1.47 3.4 1.46 1.89-3.19 3.61-.82-.34-3.69L23 12zm-12.91 4.72l-3.8-3.81 1.48-1.48 2.32 2.33 5.85-5.87 1.48 1.48-7.33 7.35z"/>',
 			'mail'     => '<path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>',
+			'check'    => '<path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>',
 		);
 		$path = isset( $icons[ $name ] ) ? $icons[ $name ] : $icons['help'];
 		return '<svg viewBox="0 0 24 24" aria-hidden="true">' . $path . '</svg>';
@@ -87,9 +88,10 @@ class RakanZakat_Stitch_Sections {
 
 	public static function categories( $args ) {
 		$cards = isset( $args['cards'] ) && is_array( $args['cards'] ) ? $args['cards'] : array();
+		$style = isset( $args['card_style'] ) && 'style2' === $args['card_style'] ? 'style2' : 'style1';
 		ob_start();
 		?>
-		<section class="rzs rzs-cats" id="kategori-zakat">
+		<section class="rzs rzs-cats<?php echo 'style2' === $style ? ' rzs-cats--s2' : ''; ?>" id="kategori-zakat">
 			<div class="rzs-inner">
 				<div class="rzs-head rzs-head--split">
 					<div>
@@ -107,14 +109,32 @@ class RakanZakat_Stitch_Sections {
 				</div>
 				<div class="rzs-cards-4">
 					<?php foreach ( $cards as $card ) : ?>
-						<article class="rzs-card rzs-cat">
+						<?php
+						$guide = $card['guide_text'] ?? '';
+						if ( 'style2' === $style && ( '' === $guide || 'Lihat Panduan' === $guide ) ) {
+							$guide = 'Cara Kira';
+						}
+						if ( '' === $guide ) {
+							$guide = 'Lihat Panduan';
+						}
+						$full = trim( (string) ( $card['full'] ?? '' ) );
+						if ( '' === $full ) {
+							$full = (string) ( $card['text'] ?? '' );
+						}
+						?>
+						<article class="rzs-card rzs-cat<?php echo 'style2' === $style ? ' rzs-cat--s2' : ''; ?>"<?php echo 'style2' === $style ? ' tabindex="0"' : ''; ?>>
 							<div>
 								<div class="rzs-icon"><?php echo self::icon( $card['icon'] ?? 'work' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
 								<h3><?php echo esc_html( $card['title'] ?? '' ); ?></h3>
-								<p><?php echo esc_html( $card['text'] ?? '' ); ?></p>
+								<?php if ( 'style2' === $style ) : ?>
+									<p class="rzs-cat__brief"><?php echo esc_html( $card['text'] ?? '' ); ?></p>
+									<p class="rzs-cat__full"><?php echo esc_html( $full ); ?></p>
+								<?php else : ?>
+									<p><?php echo esc_html( $card['text'] ?? '' ); ?></p>
+								<?php endif; ?>
 							</div>
 							<div class="rzs-cat__foot">
-								<a href="<?php echo esc_url( self::href( $card['guide_link'] ?? '#langkah-bayar', '#langkah-bayar' ) ); ?>"><?php echo esc_html( $card['guide_text'] ?? 'Lihat Panduan' ); ?></a>
+								<a href="<?php echo esc_url( self::href( $card['guide_link'] ?? '#langkah-bayar', '#langkah-bayar' ) ); ?>"><?php echo esc_html( $guide ); ?></a>
 								<a class="rzs-btn rzs-btn--sm" href="<?php echo esc_url( self::href( $card['pay_link'] ?? '#bayar', '#bayar' ) ); ?>" data-rz-zakat="<?php echo esc_attr( $card['zakat_key'] ?? '' ); ?>">
 									<?php echo esc_html( $card['pay_text'] ?? 'Bayar Sekarang' ); ?>
 								</a>
@@ -297,6 +317,118 @@ class RakanZakat_Stitch_Sections {
 						<p><?php echo esc_html( $item['a'] ?? '' ); ?></p>
 					</details>
 				<?php endforeach; ?>
+			</div>
+		</section>
+		<?php
+		return ob_get_clean();
+	}
+
+	public static function calculator( $args ) {
+		$types   = RakanZakat_Settings::zakat_types();
+		$points  = isset( $args['points'] ) && is_array( $args['points'] ) ? $args['points'] : array();
+		$rate    = (float) ( $args['rate'] ?? 2.5 );
+		$nisab_y = (float) ( $args['nisab_year'] ?? 24198 );
+		$nisab_m = (float) ( $args['nisab_month'] ?? 2016.50 );
+		$gaji    = (float) ( $args['default_gaji'] ?? 5000 );
+		$kifayah = (float) ( $args['default_kifayah'] ?? 2500 );
+		$pay_url = self::href( $args['btn_url'] ?? '#bayar', '#bayar' );
+		$fmt     = static function ( $n ) {
+			return number_format( (float) $n, 2, '.', ',' );
+		};
+		ob_start();
+		?>
+		<section class="rzs rzs-calc">
+			<div class="rzs-inner rzs-calc__grid">
+				<div class="rzs-calc__copy">
+					<?php echo self::kicker( $args['eyebrow'] ?? '' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+					<?php if ( ! empty( $args['title'] ) ) : ?>
+						<h2 class="rzs-title"><?php echo esc_html( $args['title'] ); ?></h2>
+					<?php endif; ?>
+					<?php if ( ! empty( $args['lead'] ) ) : ?>
+						<p class="rzs-lead"><?php echo esc_html( $args['lead'] ); ?></p>
+					<?php endif; ?>
+					<?php if ( $points ) : ?>
+						<ul class="rzs-calc__points">
+							<?php foreach ( $points as $point ) : ?>
+								<?php if ( empty( $point['text'] ) ) { continue; } ?>
+								<li>
+									<span class="rzs-calc__tick"><?php echo self::icon( 'check' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+									<?php echo esc_html( $point['text'] ); ?>
+								</li>
+							<?php endforeach; ?>
+						</ul>
+					<?php endif; ?>
+				</div>
+				<form class="rzs-calc-card js-rz-calc" data-rate="<?php echo esc_attr( $rate ); ?>" data-nisab-year="<?php echo esc_attr( $nisab_y ); ?>" data-nisab-month="<?php echo esc_attr( $nisab_m ); ?>" action="<?php echo esc_url( $pay_url ); ?>">
+					<div class="rzs-calc-card__head">
+						<div class="rzs-calc-card__title">
+							<span class="rzs-calc-card__icon"><?php echo self::icon( 'calc' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+							<strong><?php echo esc_html( $args['card_title'] ?? 'Kalkulator & Bayaran Pantas' ); ?></strong>
+						</div>
+						<?php if ( ! empty( $args['card_badge'] ) ) : ?>
+							<span class="rzs-chip"><?php echo esc_html( $args['card_badge'] ); ?></span>
+						<?php endif; ?>
+					</div>
+					<?php if ( ! empty( $args['card_intro'] ) ) : ?>
+						<p class="rzs-calc-card__intro"><?php echo wp_kses_post( $args['card_intro'] ); ?></p>
+					<?php endif; ?>
+					<div class="rzs-calc-card__row">
+						<label for="rz-calc-type">Pilih Jenis Zakat</label>
+						<span class="rzs-chip">Kadar <?php echo esc_html( rtrim( rtrim( number_format( $rate, 2, '.', '' ), '0' ), '.' ) ); ?>%</span>
+					</div>
+					<select id="rz-calc-type" class="js-rz-calc-type" name="zakat_type">
+						<?php foreach ( $types as $key => $label ) : ?>
+							<?php
+							$mode  = 'pendapatan' === $key ? 'income' : 'amount';
+							$shown = 'pendapatan' === $key ? 'Zakat Pendapatan (Gaji & Upah)' : $label;
+							?>
+							<option value="<?php echo esc_attr( $key ); ?>" data-mode="<?php echo esc_attr( $mode ); ?>"><?php echo esc_html( $shown ); ?></option>
+						<?php endforeach; ?>
+					</select>
+					<div class="js-rz-calc-income rzs-calc-fields">
+						<label>Gaji Bulanan (RM)
+							<input class="js-rz-calc-gaji" type="number" inputmode="decimal" min="0" step="0.01" value="<?php echo esc_attr( number_format( $gaji, 2, '.', '' ) ); ?>">
+						</label>
+						<label>Tolakan Had Kifayah (RM)
+							<input class="js-rz-calc-kifayah" type="number" inputmode="decimal" min="0" step="0.01" value="<?php echo esc_attr( number_format( $kifayah, 2, '.', '' ) ); ?>">
+						</label>
+					</div>
+					<div class="js-rz-calc-amount rzs-calc-fields" hidden>
+						<label>Nilai / Amaun (RM)
+							<input class="js-rz-calc-nilai" type="number" inputmode="decimal" min="0" step="0.01" value="0">
+						</label>
+					</div>
+					<div class="rzs-calc-notes">
+						<span>Nisab bulanan: <strong>RM<?php echo esc_html( $fmt( $nisab_m ) ); ?></strong></span>
+						<span class="js-rz-calc-hint">Kiraan: Bulanan × 12 bulan</span>
+					</div>
+					<div class="rzs-calc-result">
+						<div class="rzs-calc-result__top">
+							<span class="rzs-calc-result__icon"><?php echo self::icon( 'lock' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
+							<div>
+								<strong>Jumlah Zakat Wajib (<?php echo esc_html( rtrim( rtrim( number_format( $rate, 2, '.', '' ), '0' ), '.' ) ); ?>%)</strong>
+							</div>
+							<span class="js-rz-calc-badge rzs-calc-badge is-yes">Wajib Zakat</span>
+						</div>
+						<div class="rzs-calc-result__sum">
+							<span>RM</span>
+							<strong class="js-rz-calc-total">0.00</strong>
+							<small>/ setahun</small>
+						</div>
+						<div class="rzs-calc-result__foot">
+							<span class="js-rz-calc-formula">Formula: —</span>
+							<em>Patuh Syariah</em>
+						</div>
+					</div>
+					<button type="submit" class="rzs-btn rzs-calc-pay js-rz-calc-pay">
+						<?php echo self::icon( 'lock' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						<?php echo esc_html( $args['btn_text'] ?? 'Tunaikan Zakat Ini Sekarang' ); ?>
+						<?php echo self::icon( 'arrow' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+					</button>
+					<?php if ( ! empty( $args['card_note'] ) ) : ?>
+						<p class="rzs-calc-trust"><?php echo self::icon( 'verified' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?> <?php echo esc_html( $args['card_note'] ); ?></p>
+					<?php endif; ?>
+				</form>
 			</div>
 		</section>
 		<?php

@@ -224,6 +224,18 @@ class RakanZakat_Elementor_Cats_Widget extends RakanZakat_Elementor_Stitch_Base 
 				'default' => 'Kadar 2.5% mengikut nisab',
 			)
 		);
+		$this->add_control(
+			'card_style',
+			array(
+				'label'   => __( 'Gaya kad', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::SELECT,
+				'default' => 'style1',
+				'options' => array(
+					'style1' => __( 'Style 1 — kad biasa', 'rakanzakat' ),
+					'style2' => __( 'Style 2 — hover penerangan penuh', 'rakanzakat' ),
+				),
+			)
+		);
 		$repeater = new \Elementor\Repeater();
 		$repeater->add_control(
 			'icon',
@@ -245,9 +257,18 @@ class RakanZakat_Elementor_Cats_Widget extends RakanZakat_Elementor_Stitch_Base 
 		$repeater->add_control(
 			'text',
 			array(
-				'label'   => __( 'Penerangan', 'rakanzakat' ),
+				'label'   => __( 'Penerangan ringkas', 'rakanzakat' ),
 				'type'    => \Elementor\Controls_Manager::TEXTAREA,
 				'default' => '',
+			)
+		);
+		$repeater->add_control(
+			'full',
+			array(
+				'label'       => __( 'Penerangan penuh (Style 2)', 'rakanzakat' ),
+				'type'        => \Elementor\Controls_Manager::TEXTAREA,
+				'default'     => '',
+				'description' => __( 'Dipaparkan bila kad di-hover. Style 1 tidak guna medan ini.', 'rakanzakat' ),
 			)
 		);
 		$repeater->add_control(
@@ -261,7 +282,7 @@ class RakanZakat_Elementor_Cats_Widget extends RakanZakat_Elementor_Stitch_Base 
 		$repeater->add_control(
 			'guide_text',
 			array(
-				'label'   => __( 'Teks panduan', 'rakanzakat' ),
+				'label'   => __( 'Teks butang kiri (Cara Kira / Panduan)', 'rakanzakat' ),
 				'type'    => \Elementor\Controls_Manager::TEXT,
 				'default' => 'Lihat Panduan',
 			)
@@ -302,48 +323,56 @@ class RakanZakat_Elementor_Cats_Widget extends RakanZakat_Elementor_Stitch_Base 
 						'icon'      => 'work',
 						'title'     => 'Zakat Pendapatan',
 						'text'      => 'Zakat ke atas gaji, elaun, bonus dan sumber pendapatan peribadi tahunan yang melepasi nisab.',
+						'full'      => 'Zakat pendapatan dikira 2.5% ke atas gaji, elaun, bonus dan pendapatan sampingan selepas tolakan had kifayah. Wajib jika pendapatan bersih tahunan melepasi nisab semasa Lembaga Zakat Selangor. Isi gaji bulanan dalam kalkulator, semak jumlah, kemudian tunaikan melalui saluran rasmi.',
 						'zakat_key' => 'pendapatan',
 					),
 					array(
 						'icon'      => 'shop',
 						'title'     => 'Zakat Perniagaan',
 						'text'      => 'Zakat aset perniagaan, perkongsian, enterprise mahupun syarikat Sdn Bhd mengikut tempoh haul.',
+						'full'      => 'Zakat perniagaan dikenakan ke atas aset semasa (wang, stok, hutang belum terima) tolak liabiliti semasa, setelah genap haul setahun dan melepasi nisab. Kadarnya 2.5%. Sediakan penyata ringkas, kira nilai bersih, kemudian bayar melalui Rakan Zakat.',
 						'zakat_key' => 'perniagaan',
 					),
 					array(
 						'icon'      => 'savings',
 						'title'     => 'Zakat Wang Simpanan',
 						'text'      => 'Baki terendah akaun simpanan atau deposit tetap yang genap tempoh setahun melebihi nisab.',
+						'full'      => 'Zakat simpanan dikira 2.5% ke atas baki terendah dalam tempoh haul (termasuk simpanan, deposit tetap dan seumpamanya) jika melepasi nisab. Kumpul baki terendah setiap akaun, banding dengan nisab, kemudian tunaikan jumlah yang wajib.',
 						'zakat_key' => 'simpanan',
 					),
 					array(
 						'icon'      => 'diamond',
 						'title'     => 'Zakat Emas',
 						'text'      => 'Kiraan zakat emas simpanan (melebihi 85g) serta emas perhiasan melebihi kadar \'uruf negeri.',
+						'full'      => 'Emas simpanan dizakatkan 2.5% jika beratnya melebihi 85g dan genap haul. Emas perhiasan mengikut \'uruf negeri — hanya lebihan di atas \'uruf dikira. Timbang atau nilai semasa, tolak \'uruf jika berkenaan, kemudian bayar zakat ke atas nilai tersebut.',
 						'zakat_key' => 'emas',
 					),
 					array(
 						'icon'      => 'wallet',
 						'title'     => 'Zakat KWSP',
 						'text'      => 'Dikenakan ke atas pengeluaran wang KWSP pada hari pengeluaran diterima secara tunai.',
+						'full'      => 'Zakat KWSP dikenakan pada hari pengeluaran diterima (bukan baki dalam akaun). Kadar 2.5% ke atas jumlah pengeluaran yang melepasi nisab. Simpan penyata pengeluaran, kira 2.5%, dan tunaikan segera melalui saluran rasmi Rakan Zakat.',
 						'zakat_key' => 'kwsp',
 					),
 					array(
 						'icon'      => 'trend',
 						'title'     => 'Zakat Saham',
 						'text'      => 'Pelaburan ekuiti dan unit amanah patuh Syariah yang dimiliki bagi tujuan dividen atau dagangan.',
+						'full'      => 'Saham dan unit amanah patuh Syariah dizakatkan 2.5% ke atas nilai pasaran semasa (atau kos, mengikut niat pegangan) setelah haul dan nisab. Kumpul nilai portfolio pada tarikh haul, pastikan patuh Syariah, kemudian bayar zakat yang wajib.',
 						'zakat_key' => 'saham',
 					),
 					array(
 						'icon'      => 'update',
 						'title'     => 'Qada Zakat',
 						'text'      => 'Menyempurnakan bayaran zakat bagi tahun-tahun lalu yang terlepas atau belum sempat ditunaikan.',
+						'full'      => 'Qada zakat menyempurnakan kewajipan tahun-tahun lepas yang tertinggal. Anggar pendapatan atau aset bagi setiap tahun, kira 2.5% mengikut nisab tahun berkenaan, kemudian bayar jumlah terkumpul. Niatkan sebagai qada, bukan zakat tahun semasa.',
 						'zakat_key' => 'qada',
 					),
 					array(
 						'icon'      => 'layers',
 						'title'     => 'Lain-lain Zakat',
 						'text'      => 'Termasuk zakat fitrah, harta rikaz, zakat ternakan dan pelbagai kategori khas lain mengikut syarak.',
+						'full'      => 'Kategori ini merangkumi zakat fitrah, rikaz, ternakan dan sumbangan khas lain. Fitrah mengikut kadar kepala yang ditetapkan; kategori lain ikut dalil dan ketetapan LZS. Pilih jenis yang betul pada borang, masukkan amaun, dan tunaikan melalui saluran rasmi.',
 						'zakat_key' => 'lain-lain',
 					),
 				),
@@ -930,5 +959,158 @@ class RakanZakat_Elementor_Cta_Widget extends RakanZakat_Elementor_Stitch_Base {
 
 	protected function render() {
 		echo RakanZakat_Stitch_Sections::cta( $this->get_settings_for_display() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	}
+}
+
+class RakanZakat_Elementor_Calc_Widget extends RakanZakat_Elementor_Stitch_Base {
+
+	public function get_name() {
+		return 'rakanzakat_calc';
+	}
+
+	public function get_title() {
+		return __( 'RZ: Kalkulator Zakat', 'rakanzakat' );
+	}
+
+	public function get_icon() {
+		return 'eicon-number-field';
+	}
+
+	public function get_keywords() {
+		return array( 'zakat', 'kalkulator', 'kira', 'nisab' );
+	}
+
+	protected function register_controls() {
+		$this->heading_controls(
+			array(
+				'eyebrow' => 'Kalkulator Zakat',
+				'title'   => 'Kira Zakat Anda Dengan Tepat',
+				'lead'    => 'Isi pendapatan dan tolakan had kifayah. Kalkulator menggunakan kadar 2.5% dan nisab rasmi Lembaga Zakat Selangor, kemudian bawa anda terus ke pembayaran.',
+			)
+		);
+		$repeater = new \Elementor\Repeater();
+		$repeater->add_control(
+			'text',
+			array(
+				'label'   => __( 'Perkara', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::TEXT,
+				'default' => '',
+			)
+		);
+		$this->add_control(
+			'points',
+			array(
+				'label'       => __( 'Poin kiri', 'rakanzakat' ),
+				'type'        => \Elementor\Controls_Manager::REPEATER,
+				'fields'      => $repeater->get_controls(),
+				'title_field' => '{{{ text }}}',
+				'default'     => array(
+					array( 'text' => 'Kiraan 2.5% mengikut nisab rasmi Lembaga Zakat Selangor.' ),
+					array( 'text' => 'Hasil terpapar serta-merta — gaji, kifayah, atau nilai aset.' ),
+					array( 'text' => 'Tunaikan terus melalui saluran rasmi dengan resit LZS.' ),
+				),
+			)
+		);
+		$this->add_control(
+			'card_title',
+			array(
+				'label'   => __( 'Tajuk kad', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::TEXT,
+				'default' => 'Kalkulator & Bayaran Pantas',
+			)
+		);
+		$this->add_control(
+			'card_badge',
+			array(
+				'label'   => __( 'Lencana kad', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::TEXT,
+				'default' => 'LZS 2024',
+			)
+		);
+		$this->add_control(
+			'card_intro',
+			array(
+				'label'   => __( 'Pengenalan kad', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::TEXTAREA,
+				'default' => 'Kira tepat mengikut kadar <strong>2.5%</strong> & nisab rasmi Selangor (Nisab 2024: <strong>RM24,198 / RM2,016.50 bln</strong>).',
+			)
+		);
+		$this->add_control(
+			'rate',
+			array(
+				'label'   => __( 'Kadar (%)', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::NUMBER,
+				'default' => 2.5,
+				'min'     => 0,
+				'step'    => 0.1,
+			)
+		);
+		$this->add_control(
+			'nisab_year',
+			array(
+				'label'   => __( 'Nisab setahun (RM)', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::NUMBER,
+				'default' => 24198,
+				'min'     => 0,
+				'step'    => 0.01,
+			)
+		);
+		$this->add_control(
+			'nisab_month',
+			array(
+				'label'   => __( 'Nisab sebulan (RM)', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::NUMBER,
+				'default' => 2016.5,
+				'min'     => 0,
+				'step'    => 0.01,
+			)
+		);
+		$this->add_control(
+			'default_gaji',
+			array(
+				'label'   => __( 'Gaji contoh (RM)', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::NUMBER,
+				'default' => 5000,
+				'min'     => 0,
+			)
+		);
+		$this->add_control(
+			'default_kifayah',
+			array(
+				'label'   => __( 'Had kifayah contoh (RM)', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::NUMBER,
+				'default' => 2500,
+				'min'     => 0,
+			)
+		);
+		$this->add_control(
+			'btn_text',
+			array(
+				'label'   => __( 'Teks butang', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::TEXT,
+				'default' => 'Tunaikan Zakat Ini Sekarang',
+			)
+		);
+		$this->add_control(
+			'btn_url',
+			array(
+				'label'   => __( 'Pautan butang', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::URL,
+				'default' => array( 'url' => '#bayar' ),
+			)
+		);
+		$this->add_control(
+			'card_note',
+			array(
+				'label'   => __( 'Nota bawah kad', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::TEXT,
+				'default' => 'Resit rasmi LZS serta-merta • Pelepasan cukai LHDN 100%',
+			)
+		);
+		$this->end_controls_section();
+	}
+
+	protected function render() {
+		echo RakanZakat_Stitch_Sections::calculator( $this->get_settings_for_display() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 }

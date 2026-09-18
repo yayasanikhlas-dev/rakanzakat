@@ -79,5 +79,6 @@ class RakanZakat_Elementor {
 		$widgets_manager->register( new RakanZakat_Elementor_Impact_Widget() );
 		$widgets_manager->register( new RakanZakat_Elementor_Faq2_Widget() );
 		$widgets_manager->register( new RakanZakat_Elementor_Cta_Widget() );
+		$widgets_manager->register( new RakanZakat_Elementor_Calc_Widget() );
 	}
 }
