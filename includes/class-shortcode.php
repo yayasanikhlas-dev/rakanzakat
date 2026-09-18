@@ -57,9 +57,13 @@ class RakanZakat_Shortcode {
 	public static function form( $atts = array() ) {
 		$atts = shortcode_atts(
 			array(
-				'kicker'      => '',
-				'title'       => '',
-				'description' => '',
+				'header'      => 'yes',
+				'kicker'      => 'Cara Pembayaran',
+				'title'       => 'Bayar Zakat Secara Online',
+				'description' => 'Sistem pembayaran zakat secara online ini menyediakan platform pembayaran zakat dengan lebih efisyen dan bersistematik.',
+				'step_1'      => '1. Isi Maklumat Pembayaran',
+				'step_2'      => '2. Pilih Kaedah Pembayaran',
+				'step_3'      => '3. Resit bayaran zakat',
 				'button'      => 'Bayar Sekarang',
 				'note'        => '',
 				'presets'     => 'yes',
@@ -75,26 +79,67 @@ class RakanZakat_Shortcode {
 		$min      = (float) RakanZakat_Settings::get( 'min_amount', 10 );
 		$presets  = array( 50, 100, 250, 500, 1000 );
 		$show_presets = 'yes' === $atts['presets'] || '1' === (string) $atts['presets'];
+		$show_header  = 'no' !== $atts['header'] && '0' !== (string) $atts['header'];
+		if ( $show_header ) {
+			if ( '' === trim( (string) $atts['kicker'] ) ) {
+				$atts['kicker'] = 'Cara Pembayaran';
+			}
+			if ( '' === trim( (string) $atts['title'] ) ) {
+				$atts['title'] = 'Bayar Zakat Secara Online';
+			}
+			if ( '' === trim( (string) $atts['description'] ) ) {
+				$atts['description'] = 'Sistem pembayaran zakat secara online ini menyediakan platform pembayaran zakat dengan lebih efisyen dan bersistematik.';
+			}
+			if ( '' === trim( (string) $atts['step_1'] ) ) {
+				$atts['step_1'] = '1. Isi Maklumat Pembayaran';
+			}
+			if ( '' === trim( (string) $atts['step_2'] ) ) {
+				$atts['step_2'] = '2. Pilih Kaedah Pembayaran';
+			}
+			if ( '' === trim( (string) $atts['step_3'] ) ) {
+				$atts['step_3'] = '3. Resit bayaran zakat';
+			}
+		}
 
 		ob_start();
 		?>
 		<div class="js-rakanzakat-form" id="bayar">
+			<?php if ( $show_header ) : ?>
+			<div class="rzf-hero">
+				<p class="rzf-hero__badge">
+					<svg viewBox="0 0 20 20" aria-hidden="true"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+					<?php echo esc_html( $atts['kicker'] ); ?>
+				</p>
+				<?php if ( $atts['title'] ) : ?>
+					<h2 class="rzf-hero__title"><?php echo esc_html( $atts['title'] ); ?></h2>
+				<?php endif; ?>
+				<?php if ( $atts['description'] ) : ?>
+					<p class="rzf-hero__lead"><?php echo esc_html( $atts['description'] ); ?></p>
+				<?php endif; ?>
+				<div class="rzf-hero__steps">
+					<div class="rzf-hero__step">
+						<span class="rzf-hero__icon" aria-hidden="true">
+							<svg viewBox="0 0 48 48" fill="none"><rect x="12" y="8" width="24" height="32" rx="3" stroke="#60A5FA" stroke-width="2"/><path d="M18 18h12M18 24h12M18 30h8" stroke="#60A5FA" stroke-width="2" stroke-linecap="round"/></svg>
+						</span>
+						<span><?php echo esc_html( $atts['step_1'] ); ?></span>
+					</div>
+					<div class="rzf-hero__step">
+						<span class="rzf-hero__icon" aria-hidden="true">
+							<svg viewBox="0 0 48 48" fill="none"><rect x="10" y="16" width="28" height="20" rx="3" stroke="#60A5FA" stroke-width="2"/><path d="M16 16v-2a8 8 0 0116 0v2" stroke="#60A5FA" stroke-width="2" stroke-linecap="round"/><circle cx="30" cy="26" r="2" fill="#60A5FA"/></svg>
+						</span>
+						<span><?php echo esc_html( $atts['step_2'] ); ?></span>
+					</div>
+					<div class="rzf-hero__step">
+						<span class="rzf-hero__icon" aria-hidden="true">
+							<svg viewBox="0 0 48 48" fill="none"><path d="M16 10h16l6 6v22a3 3 0 01-3 3H16a3 3 0 01-3-3V13a3 3 0 013-3z" stroke="#60A5FA" stroke-width="2"/><path d="M32 10v7h7M20 24h12M20 30h8" stroke="#60A5FA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+						</span>
+						<span><?php echo esc_html( $atts['step_3'] ); ?></span>
+					</div>
+				</div>
+			</div>
+			<?php endif; ?>
 			<div class="rzf-card">
 			<form method="post" novalidate>
-				<?php if ( $atts['kicker'] || $atts['title'] || $atts['description'] ) : ?>
-				<div class="rz-form__intro">
-					<?php if ( $atts['kicker'] ) : ?>
-						<p class="rz-form__kicker"><?php echo esc_html( $atts['kicker'] ); ?></p>
-					<?php endif; ?>
-					<?php if ( $atts['title'] ) : ?>
-						<h2><?php echo esc_html( $atts['title'] ); ?></h2>
-					<?php endif; ?>
-					<?php if ( $atts['description'] ) : ?>
-						<p><?php echo esc_html( $atts['description'] ); ?></p>
-					<?php endif; ?>
-				</div>
-				<?php endif; ?>
-
 				<div class="rzf-grid-2">
 					<div>
 						<label class="rzf-label" for="rz-name">

@@ -47,11 +47,23 @@ class RakanZakat_Elementor_Form_Widget extends \Elementor\Widget_Base {
 		);
 
 		$this->add_control(
+			'header',
+			array(
+				'label'        => __( 'Tunjuk header atas borang', 'rakanzakat' ),
+				'type'         => \Elementor\Controls_Manager::SWITCHER,
+				'label_on'     => __( 'Ya', 'rakanzakat' ),
+				'label_off'    => __( 'Tidak', 'rakanzakat' ),
+				'return_value' => 'yes',
+				'default'      => 'yes',
+			)
+		);
+
+		$this->add_control(
 			'kicker',
 			array(
-				'label'   => __( 'Teks kecil atas', 'rakanzakat' ),
+				'label'   => __( 'Lencana', 'rakanzakat' ),
 				'type'    => \Elementor\Controls_Manager::TEXT,
-				'default' => '',
+				'default' => 'Cara Pembayaran',
 			)
 		);
 
@@ -60,7 +72,7 @@ class RakanZakat_Elementor_Form_Widget extends \Elementor\Widget_Base {
 			array(
 				'label'   => __( 'Tajuk', 'rakanzakat' ),
 				'type'    => \Elementor\Controls_Manager::TEXT,
-				'default' => '',
+				'default' => 'Bayar Zakat Secara Online',
 			)
 		);
 
@@ -69,7 +81,34 @@ class RakanZakat_Elementor_Form_Widget extends \Elementor\Widget_Base {
 			array(
 				'label'   => __( 'Penerangan', 'rakanzakat' ),
 				'type'    => \Elementor\Controls_Manager::TEXTAREA,
-				'default' => '',
+				'default' => 'Sistem pembayaran zakat secara online ini menyediakan platform pembayaran zakat dengan lebih efisyen dan bersistematik.',
+			)
+		);
+
+		$this->add_control(
+			'step_1',
+			array(
+				'label'   => __( 'Langkah 1', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::TEXT,
+				'default' => '1. Isi Maklumat Pembayaran',
+			)
+		);
+
+		$this->add_control(
+			'step_2',
+			array(
+				'label'   => __( 'Langkah 2', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::TEXT,
+				'default' => '2. Pilih Kaedah Pembayaran',
+			)
+		);
+
+		$this->add_control(
+			'step_3',
+			array(
+				'label'   => __( 'Langkah 3', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::TEXT,
+				'default' => '3. Resit bayaran zakat',
 			)
 		);
 
@@ -110,9 +149,13 @@ class RakanZakat_Elementor_Form_Widget extends \Elementor\Widget_Base {
 		$s = $this->get_settings_for_display();
 		echo RakanZakat_Shortcode::form( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			array(
+				'header'      => ! empty( $s['header'] ) ? 'yes' : 'no',
 				'kicker'      => $s['kicker'] ?? '',
 				'title'       => $s['title'] ?? '',
 				'description' => $s['description'] ?? '',
+				'step_1'      => $s['step_1'] ?? '',
+				'step_2'      => $s['step_2'] ?? '',
+				'step_3'      => $s['step_3'] ?? '',
 				'button'      => $s['button'] ?? '',
 				'note'        => $s['note'] ?? '',
 				'presets'     => ! empty( $s['presets'] ) ? 'yes' : 'no',
