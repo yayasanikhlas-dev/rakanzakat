@@ -1491,7 +1491,7 @@ class RakanZakat_Elementor_Calc_Widget extends RakanZakat_Elementor_Stitch_Base 
 			array(
 				'eyebrow' => 'Kalkulator Zakat',
 				'title'   => 'Kira Zakat Anda Dengan Tepat',
-				'lead'    => 'Isi pendapatan dan tolakan had kifayah. Kalkulator menggunakan kadar 2.5% dan nisab rasmi Lembaga Zakat Selangor, kemudian bawa anda terus ke pembayaran.',
+				'lead'    => 'Pilih jenis zakat, kira mengikut kadar dan nisab kategori itu, kemudian tunaikan terus ke pembayaran.',
 			)
 		);
 		$repeater = new \Elementor\Repeater();
@@ -1511,7 +1511,7 @@ class RakanZakat_Elementor_Calc_Widget extends RakanZakat_Elementor_Stitch_Base 
 				'fields'      => $repeater->get_controls(),
 				'title_field' => '{{{ text }}}',
 				'default'     => array(
-					array( 'text' => 'Kiraan 2.5% mengikut nisab rasmi Lembaga Zakat Selangor.' ),
+					array( 'text' => 'Setiap jenis zakat ada kadar, nisab dan formula sendiri.' ),
 					array( 'text' => 'Hasil terpapar serta-merta — gaji, kifayah, atau nilai aset.' ),
 					array( 'text' => 'Tunaikan terus melalui saluran rasmi dengan resit LZS.' ),
 				),
@@ -1538,55 +1538,260 @@ class RakanZakat_Elementor_Calc_Widget extends RakanZakat_Elementor_Stitch_Base 
 			array(
 				'label'   => __( 'Pengenalan kad', 'rakanzakat' ),
 				'type'    => \Elementor\Controls_Manager::TEXTAREA,
-				'default' => 'Kira tepat mengikut kadar <strong>2.5%</strong> & nisab rasmi Selangor (Nisab 2024: <strong>RM24,198 / RM2,016.50 bln</strong>).',
+				'default' => 'Pilih jenis zakat. Kadar, nisab dan formula menyesuaikan mengikut kategori yang dipilih.',
 			)
 		);
-		$this->add_control(
+		$types = new \Elementor\Repeater();
+		$types->add_control(
+			'zakat_key',
+			array(
+				'label'   => __( 'Kod jenis (borang)', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::SELECT,
+				'options' => RakanZakat_Settings::zakat_types(),
+				'default' => 'pendapatan',
+			)
+		);
+		$types->add_control(
+			'label',
+			array(
+				'label'   => __( 'Nama dalam senarai', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::TEXT,
+				'default' => '',
+			)
+		);
+		$types->add_control(
+			'mode',
+			array(
+				'label'   => __( 'Cara kira', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::SELECT,
+				'default' => 'amount',
+				'options' => array(
+					'income' => __( 'Pendapatan: gaji - kifayah x 12', 'rakanzakat' ),
+					'amount' => __( 'Nilai RM x kadar %', 'rakanzakat' ),
+					'head'   => __( 'Fitrah: bilangan x kadar RM', 'rakanzakat' ),
+					'flat'   => __( 'Amaun terus (tanpa darab kadar)', 'rakanzakat' ),
+				),
+			)
+		);
+		$types->add_control(
 			'rate',
 			array(
-				'label'   => __( 'Kadar (%)', 'rakanzakat' ),
+				'label'   => __( 'Kadar (% atau RM/orang untuk fitrah)', 'rakanzakat' ),
 				'type'    => \Elementor\Controls_Manager::NUMBER,
 				'default' => 2.5,
 				'min'     => 0,
-				'step'    => 0.1,
+				'step'    => 0.01,
+				'condition' => array( 'mode!' => 'flat' ),
 			)
 		);
-		$this->add_control(
+		$types->add_control(
 			'nisab_year',
 			array(
-				'label'   => __( 'Nisab setahun (RM)', 'rakanzakat' ),
-				'type'    => \Elementor\Controls_Manager::NUMBER,
-				'default' => 24198,
-				'min'     => 0,
-				'step'    => 0.01,
+				'label'     => __( 'Nisab setahun (RM)', 'rakanzakat' ),
+				'type'      => \Elementor\Controls_Manager::NUMBER,
+				'default'   => 24198,
+				'min'       => 0,
+				'step'      => 0.01,
+				'condition' => array( 'skip_nisab!' => 'yes' ),
 			)
 		);
-		$this->add_control(
+		$types->add_control(
 			'nisab_month',
 			array(
-				'label'   => __( 'Nisab sebulan (RM)', 'rakanzakat' ),
-				'type'    => \Elementor\Controls_Manager::NUMBER,
-				'default' => 2016.5,
-				'min'     => 0,
-				'step'    => 0.01,
+				'label'     => __( 'Nisab sebulan (RM)', 'rakanzakat' ),
+				'type'      => \Elementor\Controls_Manager::NUMBER,
+				'default'   => 2016.5,
+				'min'       => 0,
+				'step'      => 0.01,
+				'condition' => array( 'skip_nisab!' => 'yes' ),
+			)
+		);
+		$types->add_control(
+			'skip_nisab',
+			array(
+				'label'        => __( 'Abaikan nisab (sentiasa kira)', 'rakanzakat' ),
+				'type'         => \Elementor\Controls_Manager::SWITCHER,
+				'return_value' => 'yes',
+				'default'      => '',
+			)
+		);
+		$types->add_control(
+			'field_a_label',
+			array(
+				'label'     => __( 'Label medan 1', 'rakanzakat' ),
+				'type'      => \Elementor\Controls_Manager::TEXT,
+				'default'   => 'Gaji Bulanan (RM)',
+				'condition' => array( 'mode' => 'income' ),
+			)
+		);
+		$types->add_control(
+			'field_b_label',
+			array(
+				'label'     => __( 'Label medan 2', 'rakanzakat' ),
+				'type'      => \Elementor\Controls_Manager::TEXT,
+				'default'   => 'Tolakan Had Kifayah (RM)',
+				'condition' => array( 'mode' => 'income' ),
+			)
+		);
+		$types->add_control(
+			'field_a_value',
+			array(
+				'label'     => __( 'Nilai contoh medan 1', 'rakanzakat' ),
+				'type'      => \Elementor\Controls_Manager::NUMBER,
+				'default'   => 5000,
+				'condition' => array( 'mode' => 'income' ),
+			)
+		);
+		$types->add_control(
+			'field_b_value',
+			array(
+				'label'     => __( 'Nilai contoh medan 2', 'rakanzakat' ),
+				'type'      => \Elementor\Controls_Manager::NUMBER,
+				'default'   => 2500,
+				'condition' => array( 'mode' => 'income' ),
+			)
+		);
+		$types->add_control(
+			'amount_label',
+			array(
+				'label'     => __( 'Label medan amaun', 'rakanzakat' ),
+				'type'      => \Elementor\Controls_Manager::TEXT,
+				'default'   => 'Nilai / Amaun (RM)',
+				'condition' => array( 'mode' => array( 'amount', 'head', 'flat' ) ),
+			)
+		);
+		$types->add_control(
+			'amount_value',
+			array(
+				'label'     => __( 'Nilai contoh amaun', 'rakanzakat' ),
+				'type'      => \Elementor\Controls_Manager::NUMBER,
+				'default'   => 0,
+				'condition' => array( 'mode' => array( 'amount', 'head', 'flat' ) ),
+			)
+		);
+		$types->add_control(
+			'period',
+			array(
+				'label'   => __( 'Label tempoh hasil', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::TEXT,
+				'default' => '/ setahun',
+			)
+		);
+		$types->add_control(
+			'hint',
+			array(
+				'label'   => __( 'Nota kiraan', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::TEXT,
+				'default' => '',
 			)
 		);
 		$this->add_control(
-			'default_gaji',
+			'types',
 			array(
-				'label'   => __( 'Gaji contoh (RM)', 'rakanzakat' ),
-				'type'    => \Elementor\Controls_Manager::NUMBER,
-				'default' => 5000,
-				'min'     => 0,
-			)
-		);
-		$this->add_control(
-			'default_kifayah',
-			array(
-				'label'   => __( 'Had kifayah contoh (RM)', 'rakanzakat' ),
-				'type'    => \Elementor\Controls_Manager::NUMBER,
-				'default' => 2500,
-				'min'     => 0,
+				'label'       => __( 'Jenis zakat', 'rakanzakat' ),
+				'description' => __( 'Satu item untuk setiap jenis. Dalam item boleh ubah kadar, nisab bulan/tahun, cara kira dan label medan.', 'rakanzakat' ),
+				'type'        => \Elementor\Controls_Manager::REPEATER,
+				'fields'      => $types->get_controls(),
+				'title_field' => '{{{ label }}} ({{{ zakat_key }}})',
+				'default'     => array(
+					array(
+						'zakat_key'     => 'pendapatan',
+						'label'         => 'Zakat Pendapatan (Gaji & Upah)',
+						'mode'          => 'income',
+						'rate'          => 2.5,
+						'nisab_year'    => 24198,
+						'nisab_month'   => 2016.5,
+						'field_a_label' => 'Gaji Bulanan (RM)',
+						'field_b_label' => 'Tolakan Had Kifayah (RM)',
+						'field_a_value' => 5000,
+						'field_b_value' => 2500,
+						'period'        => '/ setahun',
+						'hint'          => 'Kiraan: Bulanan x 12 bulan',
+					),
+					array(
+						'zakat_key'    => 'fitrah',
+						'label'        => 'Zakat Fitrah',
+						'mode'         => 'head',
+						'rate'         => 7,
+						'skip_nisab'   => 'yes',
+						'amount_label' => 'Bilangan individu',
+						'amount_value' => 1,
+						'period'       => '/ jumlah',
+						'hint'         => 'Kiraan: bilangan x kadar RM/orang',
+					),
+					array(
+						'zakat_key'    => 'perniagaan',
+						'label'        => 'Zakat Perniagaan',
+						'mode'         => 'amount',
+						'rate'         => 2.5,
+						'nisab_year'   => 24198,
+						'amount_label' => 'Nilai bersih aset (RM)',
+						'period'       => '/ setahun',
+					),
+					array(
+						'zakat_key'    => 'simpanan',
+						'label'        => 'Zakat Simpanan',
+						'mode'         => 'amount',
+						'rate'         => 2.5,
+						'nisab_year'   => 24198,
+						'amount_label' => 'Baki terendah (RM)',
+						'period'       => '/ setahun',
+					),
+					array(
+						'zakat_key'    => 'emas',
+						'label'        => 'Zakat Emas',
+						'mode'         => 'amount',
+						'rate'         => 2.5,
+						'nisab_year'   => 24198,
+						'amount_label' => 'Nilai emas (RM)',
+						'period'       => '/ setahun',
+					),
+					array(
+						'zakat_key'    => 'saham',
+						'label'        => 'Zakat Saham',
+						'mode'         => 'amount',
+						'rate'         => 2.5,
+						'nisab_year'   => 24198,
+						'amount_label' => 'Nilai portfolio (RM)',
+						'period'       => '/ setahun',
+					),
+					array(
+						'zakat_key'    => 'kwsp',
+						'label'        => 'Zakat KWSP',
+						'mode'         => 'amount',
+						'rate'         => 2.5,
+						'nisab_year'   => 24198,
+						'amount_label' => 'Jumlah pengeluaran (RM)',
+						'period'       => '/ pengeluaran',
+					),
+					array(
+						'zakat_key'    => 'qada',
+						'label'        => 'Qada Zakat',
+						'mode'         => 'flat',
+						'rate'         => 2.5,
+						'skip_nisab'   => 'yes',
+						'amount_label' => 'Amaun qada (RM)',
+						'period'       => '',
+					),
+					array(
+						'zakat_key'    => 'pertanian',
+						'label'        => 'Zakat Pertanian',
+						'mode'         => 'amount',
+						'rate'         => 5,
+						'nisab_year'   => 24198,
+						'amount_label' => 'Nilai hasil (RM)',
+						'period'       => '/ musim',
+					),
+					array(
+						'zakat_key'    => 'lain-lain',
+						'label'        => 'Lain-lain / Sumbangan',
+						'mode'         => 'flat',
+						'rate'         => 2.5,
+						'skip_nisab'   => 'yes',
+						'amount_label' => 'Amaun (RM)',
+						'period'       => '',
+					),
+				),
 			)
 		);
 		$this->add_control(

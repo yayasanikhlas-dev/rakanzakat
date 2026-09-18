@@ -3,7 +3,7 @@
  * Plugin Name: Rakan Zakat
  * Plugin URI: https://rakanzakat.com
  * Description: Dashboard kutipan zakat untuk Rakanzakat.com. Pembayaran Billplz, tracking pelawat, ads spend, dan ROI.
- * Version: 1.9.4
+ * Version: 1.9.5
  * Author: Rakan Zakat
  * Author URI: https://rakanzakat.com
  * License: GPL-2.0-or-later
@@ -17,7 +17,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'RAKANZAKAT_VERSION', '1.9.4' );
+define( 'RAKANZAKAT_VERSION', '1.9.5' );
 define( 'RAKANZAKAT_FILE', __FILE__ );
 define( 'RAKANZAKAT_PATH', plugin_dir_path( __FILE__ ) );
 define( 'RAKANZAKAT_URL', plugin_dir_url( __FILE__ ) );

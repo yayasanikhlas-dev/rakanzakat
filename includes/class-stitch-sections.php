@@ -323,18 +323,182 @@ class RakanZakat_Stitch_Sections {
 		return ob_get_clean();
 	}
 
-	public static function calculator( $args ) {
-		$types   = RakanZakat_Settings::zakat_types();
-		$points  = isset( $args['points'] ) && is_array( $args['points'] ) ? $args['points'] : array();
+	public static function calc_trim_num( $n ) {
+		return rtrim( rtrim( number_format( (float) $n, 2, '.', '' ), '0' ), '.' );
+	}
+
+	public static function calc_type_cfg( $item, $catalog = array() ) {
+		if ( ! is_array( $item ) ) {
+			$item = array();
+		}
+		if ( ! $catalog ) {
+			$catalog = RakanZakat_Settings::zakat_types();
+		}
+		$key = isset( $item['zakat_key'] ) ? (string) $item['zakat_key'] : 'pendapatan';
+		if ( 'lain' === $key ) {
+			$key = 'lain-lain';
+		}
+		$modes = array( 'income', 'amount', 'head', 'flat' );
+		$mode  = isset( $item['mode'] ) ? (string) $item['mode'] : '';
+		if ( ! in_array( $mode, $modes, true ) ) {
+			if ( 'pendapatan' === $key ) {
+				$mode = 'income';
+			} elseif ( 'fitrah' === $key ) {
+				$mode = 'head';
+			} elseif ( in_array( $key, array( 'qada', 'lain-lain' ), true ) ) {
+				$mode = 'flat';
+			} else {
+				$mode = 'amount';
+			}
+		}
+		$label = trim( (string) ( $item['label'] ?? '' ) );
+		if ( '' === $label ) {
+			$label = isset( $catalog[ $key ] ) ? (string) $catalog[ $key ] : $key;
+		}
+		$amount_label = trim( (string) ( $item['amount_label'] ?? '' ) );
+		if ( '' === $amount_label ) {
+			if ( 'head' === $mode ) {
+				$amount_label = 'Bilangan individu';
+			} elseif ( 'flat' === $mode ) {
+				$amount_label = 'Amaun (RM)';
+			} else {
+				$amount_label = 'Nilai / Amaun (RM)';
+			}
+		}
+		$period = array_key_exists( 'period', $item ) ? (string) $item['period'] : '/ setahun';
+		$hint   = trim( (string) ( $item['hint'] ?? '' ) );
+		return array(
+			'key'           => $key,
+			'label'         => $label,
+			'mode'          => $mode,
+			'rate'          => (float) ( $item['rate'] ?? ( 'head' === $mode ? 7 : ( 'pertanian' === $key ? 5 : 2.5 ) ) ),
+			'nisab_year'    => (float) ( $item['nisab_year'] ?? 24198 ),
+			'nisab_month'   => (float) ( $item['nisab_month'] ?? 2016.5 ),
+			'skip_nisab'    => 'yes' === ( $item['skip_nisab'] ?? '' ),
+			'field_a_label' => (string) ( $item['field_a_label'] ?? 'Gaji Bulanan (RM)' ),
+			'field_b_label' => (string) ( $item['field_b_label'] ?? 'Tolakan Had Kifayah (RM)' ),
+			'field_a_value' => (float) ( $item['field_a_value'] ?? 5000 ),
+			'field_b_value' => (float) ( $item['field_b_value'] ?? 2500 ),
+			'amount_label'  => $amount_label,
+			'amount_value'  => (float) ( $item['amount_value'] ?? ( 'head' === $mode ? 1 : 0 ) ),
+			'period'        => $period,
+			'hint'          => $hint,
+		);
+	}
+
+	public static function calc_rate_chip( $cfg ) {
+		$rate = self::calc_trim_num( $cfg['rate'] ?? 0 );
+		if ( 'head' === ( $cfg['mode'] ?? '' ) ) {
+			return 'Kadar RM' . $rate . '/orang';
+		}
+		if ( 'flat' === ( $cfg['mode'] ?? '' ) ) {
+			return 'Amaun terus';
+		}
+		return 'Kadar ' . $rate . '%';
+	}
+
+	public static function calc_result_title( $cfg ) {
+		$rate = self::calc_trim_num( $cfg['rate'] ?? 0 );
+		if ( in_array( $cfg['mode'] ?? '', array( 'head', 'flat' ), true ) ) {
+			return 'Jumlah Zakat Wajib';
+		}
+		return 'Jumlah Zakat Wajib (' . $rate . '%)';
+	}
+
+	public static function default_calc_types( $args = array() ) {
+		$catalog = RakanZakat_Settings::zakat_types();
 		$rate    = (float) ( $args['rate'] ?? 2.5 );
 		$nisab_y = (float) ( $args['nisab_year'] ?? 24198 );
-		$nisab_m = (float) ( $args['nisab_month'] ?? 2016.50 );
+		$nisab_m = (float) ( $args['nisab_month'] ?? 2016.5 );
 		$gaji    = (float) ( $args['default_gaji'] ?? 5000 );
 		$kifayah = (float) ( $args['default_kifayah'] ?? 2500 );
+		$items   = array();
+		foreach ( $catalog as $key => $label ) {
+			$item = array(
+				'zakat_key'  => $key,
+				'label'      => $label,
+				'rate'       => $rate,
+				'nisab_year' => $nisab_y,
+			);
+			if ( 'pendapatan' === $key ) {
+				$item['label']         = 'Zakat Pendapatan (Gaji & Upah)';
+				$item['mode']          = 'income';
+				$item['nisab_month']   = $nisab_m;
+				$item['field_a_label'] = 'Gaji Bulanan (RM)';
+				$item['field_b_label'] = 'Tolakan Had Kifayah (RM)';
+				$item['field_a_value'] = $gaji;
+				$item['field_b_value'] = $kifayah;
+				$item['period']        = '/ setahun';
+				$item['hint']          = 'Kiraan: Bulanan x 12 bulan';
+			} elseif ( 'fitrah' === $key ) {
+				$item['mode']         = 'head';
+				$item['rate']         = 7;
+				$item['skip_nisab']   = 'yes';
+				$item['amount_label'] = 'Bilangan individu';
+				$item['amount_value'] = 1;
+				$item['period']       = '/ jumlah';
+				$item['hint']         = 'Kiraan: bilangan x kadar RM/orang';
+			} elseif ( 'qada' === $key ) {
+				$item['mode']         = 'flat';
+				$item['skip_nisab']   = 'yes';
+				$item['amount_label'] = 'Amaun qada (RM)';
+				$item['period']       = '';
+			} elseif ( 'lain-lain' === $key ) {
+				$item['mode']         = 'flat';
+				$item['skip_nisab']   = 'yes';
+				$item['amount_label'] = 'Amaun (RM)';
+				$item['period']       = '';
+			} else {
+				$item['mode'] = 'amount';
+				$labels       = array(
+					'perniagaan' => 'Nilai bersih aset (RM)',
+					'simpanan'   => 'Baki terendah (RM)',
+					'emas'       => 'Nilai emas (RM)',
+					'saham'      => 'Nilai portfolio (RM)',
+					'kwsp'       => 'Jumlah pengeluaran (RM)',
+					'pertanian'  => 'Nilai hasil (RM)',
+				);
+				$periods = array(
+					'kwsp'      => '/ pengeluaran',
+					'pertanian' => '/ musim',
+				);
+				$item['amount_label'] = isset( $labels[ $key ] ) ? $labels[ $key ] : 'Nilai / Amaun (RM)';
+				$item['period']       = isset( $periods[ $key ] ) ? $periods[ $key ] : '/ setahun';
+				if ( 'pertanian' === $key ) {
+					$item['rate'] = 5;
+				}
+			}
+			$items[] = $item;
+		}
+		return $items;
+	}
+
+	public static function calculator( $args ) {
+		$catalog = RakanZakat_Settings::zakat_types();
+		$points  = isset( $args['points'] ) && is_array( $args['points'] ) ? $args['points'] : array();
+		$raw     = isset( $args['types'] ) && is_array( $args['types'] ) ? $args['types'] : array();
+		$raw     = array_values(
+			array_filter(
+				$raw,
+				function ( $item ) {
+					return is_array( $item ) && ! empty( $item['zakat_key'] );
+				}
+			)
+		);
+		if ( ! $raw ) {
+			$raw = self::default_calc_types( $args );
+		}
+		$cfgs = array();
+		foreach ( $raw as $item ) {
+			$cfgs[] = self::calc_type_cfg( $item, $catalog );
+		}
+		$first   = $cfgs[0];
 		$pay_url = self::href( $args['btn_url'] ?? '#bayar', '#bayar' );
-		$fmt     = static function ( $n ) {
+		$fmt     = function ( $n ) {
 			return number_format( (float) $n, 2, '.', ',' );
 		};
+		$uid     = function_exists( 'wp_unique_id' ) ? wp_unique_id( 'rz-calc-type-' ) : uniqid( 'rz-calc-type-', false );
+		$income  = 'income' === $first['mode'];
 		ob_start();
 		?>
 		<section class="rzs rzs-calc">
@@ -359,7 +523,7 @@ class RakanZakat_Stitch_Sections {
 						</ul>
 					<?php endif; ?>
 				</div>
-				<form class="rzs-calc-card js-rz-calc" data-rate="<?php echo esc_attr( $rate ); ?>" data-nisab-year="<?php echo esc_attr( $nisab_y ); ?>" data-nisab-month="<?php echo esc_attr( $nisab_m ); ?>" action="<?php echo esc_url( $pay_url ); ?>">
+				<form class="rzs-calc-card js-rz-calc" data-rate="<?php echo esc_attr( $first['rate'] ); ?>" data-nisab-year="<?php echo esc_attr( $first['nisab_year'] ); ?>" data-nisab-month="<?php echo esc_attr( $first['nisab_month'] ); ?>" action="<?php echo esc_url( $pay_url ); ?>">
 					<div class="rzs-calc-card__head">
 						<div class="rzs-calc-card__title">
 							<span class="rzs-calc-card__icon"><?php echo self::icon( 'calc' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
@@ -373,47 +537,55 @@ class RakanZakat_Stitch_Sections {
 						<p class="rzs-calc-card__intro"><?php echo wp_kses_post( $args['card_intro'] ); ?></p>
 					<?php endif; ?>
 					<div class="rzs-calc-card__row">
-						<label for="rz-calc-type">Pilih Jenis Zakat</label>
-						<span class="rzs-chip">Kadar <?php echo esc_html( rtrim( rtrim( number_format( $rate, 2, '.', '' ), '0' ), '.' ) ); ?>%</span>
+						<label for="<?php echo esc_attr( $uid ); ?>">Pilih Jenis Zakat</label>
+						<span class="js-rz-calc-rate-chip rzs-chip"><?php echo esc_html( self::calc_rate_chip( $first ) ); ?></span>
 					</div>
-					<select id="rz-calc-type" class="js-rz-calc-type" name="zakat_type">
-						<?php foreach ( $types as $key => $label ) : ?>
+					<select id="<?php echo esc_attr( $uid ); ?>" class="js-rz-calc-type" name="zakat_type">
+						<?php foreach ( $cfgs as $cfg ) : ?>
 							<?php
-							$mode  = 'pendapatan' === $key ? 'income' : 'amount';
-							$shown = 'pendapatan' === $key ? 'Zakat Pendapatan (Gaji & Upah)' : $label;
+							$payload = $cfg;
+							unset( $payload['key'], $payload['label'] );
 							?>
-							<option value="<?php echo esc_attr( $key ); ?>" data-mode="<?php echo esc_attr( $mode ); ?>"><?php echo esc_html( $shown ); ?></option>
+							<option value="<?php echo esc_attr( $cfg['key'] ); ?>" data-mode="<?php echo esc_attr( $cfg['mode'] ); ?>" data-cfg="<?php echo esc_attr( wp_json_encode( $payload ) ); ?>"><?php echo esc_html( $cfg['label'] ); ?></option>
 						<?php endforeach; ?>
 					</select>
-					<div class="js-rz-calc-income rzs-calc-fields">
-						<label>Gaji Bulanan (RM)
-							<input class="js-rz-calc-gaji" type="number" inputmode="decimal" min="0" step="0.01" value="<?php echo esc_attr( number_format( $gaji, 2, '.', '' ) ); ?>">
+					<div class="js-rz-calc-income rzs-calc-fields"<?php echo $income ? '' : ' hidden'; ?>>
+						<label><span class="js-rz-calc-gaji-label"><?php echo esc_html( $first['field_a_label'] ); ?></span>
+							<input class="js-rz-calc-gaji" type="number" inputmode="decimal" min="0" step="0.01" value="<?php echo esc_attr( number_format( $first['field_a_value'], 2, '.', '' ) ); ?>">
 						</label>
-						<label>Tolakan Had Kifayah (RM)
-							<input class="js-rz-calc-kifayah" type="number" inputmode="decimal" min="0" step="0.01" value="<?php echo esc_attr( number_format( $kifayah, 2, '.', '' ) ); ?>">
+						<label><span class="js-rz-calc-kifayah-label"><?php echo esc_html( $first['field_b_label'] ); ?></span>
+							<input class="js-rz-calc-kifayah" type="number" inputmode="decimal" min="0" step="0.01" value="<?php echo esc_attr( number_format( $first['field_b_value'], 2, '.', '' ) ); ?>">
 						</label>
 					</div>
-					<div class="js-rz-calc-amount rzs-calc-fields" hidden>
-						<label>Nilai / Amaun (RM)
-							<input class="js-rz-calc-nilai" type="number" inputmode="decimal" min="0" step="0.01" value="0">
+					<div class="js-rz-calc-amount rzs-calc-fields"<?php echo $income ? ' hidden' : ''; ?>>
+						<label><span class="js-rz-calc-nilai-label"><?php echo esc_html( $first['amount_label'] ); ?></span>
+							<input class="js-rz-calc-nilai" type="number" inputmode="decimal" min="0" step="0.01" value="<?php echo esc_attr( number_format( $first['amount_value'], 2, '.', '' ) ); ?>">
 						</label>
 					</div>
 					<div class="rzs-calc-notes">
-						<span>Nisab bulanan: <strong>RM<?php echo esc_html( $fmt( $nisab_m ) ); ?></strong></span>
-						<span class="js-rz-calc-hint">Kiraan: Bulanan × 12 bulan</span>
+						<span class="js-rz-calc-nisab"><?php
+						if ( ! empty( $first['skip_nisab'] ) ) {
+							echo 'Tiada syarat nisab';
+						} elseif ( $income ) {
+							echo 'Nisab bulanan: <strong>RM' . esc_html( $fmt( $first['nisab_month'] ) ) . '</strong>';
+						} else {
+							echo 'Nisab tahunan: <strong>RM' . esc_html( $fmt( $first['nisab_year'] ) ) . '</strong>';
+						}
+						?></span>
+						<span class="js-rz-calc-hint"><?php echo esc_html( $first['hint'] ? $first['hint'] : ( $income ? 'Kiraan: Bulanan × 12 bulan' : '' ) ); ?></span>
 					</div>
 					<div class="rzs-calc-result">
 						<div class="rzs-calc-result__top">
 							<span class="rzs-calc-result__icon"><?php echo self::icon( 'lock' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
 							<div>
-								<strong>Jumlah Zakat Wajib (<?php echo esc_html( rtrim( rtrim( number_format( $rate, 2, '.', '' ), '0' ), '.' ) ); ?>%)</strong>
+								<strong class="js-rz-calc-result-title"><?php echo esc_html( self::calc_result_title( $first ) ); ?></strong>
 							</div>
 							<span class="js-rz-calc-badge rzs-calc-badge is-yes">Wajib Zakat</span>
 						</div>
 						<div class="rzs-calc-result__sum">
 							<span>RM</span>
 							<strong class="js-rz-calc-total">0.00</strong>
-							<small>/ setahun</small>
+							<small class="js-rz-calc-period"<?php echo '' === $first['period'] ? ' hidden' : ''; ?>><?php echo esc_html( $first['period'] ); ?></small>
 						</div>
 						<div class="rzs-calc-result__foot">
 							<span class="js-rz-calc-formula">Formula: —</span>
