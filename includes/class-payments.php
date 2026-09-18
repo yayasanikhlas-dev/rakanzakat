@@ -329,7 +329,7 @@ class RakanZakat_Payments {
 	}
 
 	public static function export_csv() {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( 'manage_options' ) && ! current_user_can( 'rz_manage_portal' ) ) {
 			wp_die( esc_html__( 'Akses ditolak.', 'rakanzakat' ) );
 		}
 

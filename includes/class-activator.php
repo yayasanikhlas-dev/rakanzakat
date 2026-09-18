@@ -35,6 +35,10 @@ class RakanZakat_Activator {
 	}
 
 	public static function maybe_upgrade() {
+		$mgr = get_role( 'rz_manager' );
+		if ( $mgr && ! $mgr->has_cap( 'upload_files' ) ) {
+			$mgr->add_cap( 'upload_files' );
+		}
 		if ( get_option( 'rakanzakat_db_version' ) !== self::DB_VERSION ) {
 			self::create_tables();
 			self::register_roles();
@@ -258,6 +262,7 @@ class RakanZakat_Activator {
 			__( 'Rakan Zakat Admin', 'rakanzakat' ),
 			array(
 				'read'             => true,
+				'upload_files'     => true,
 				'rz_manage_portal' => true,
 			)
 		);
