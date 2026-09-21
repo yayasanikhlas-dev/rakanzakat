@@ -47,11 +47,8 @@ class RakanZakat_Portal {
 		if ( ! $user instanceof WP_User ) {
 			return $redirect;
 		}
-		if ( user_can( $user, 'manage_options' ) ) {
+		if ( user_can( $user, 'manage_options' ) || user_can( $user, 'rz_manage_portal' ) ) {
 			return $requested ? $requested : $redirect;
-		}
-		if ( user_can( $user, 'rz_manage_portal' ) ) {
-			return self::url( 'admin' );
 		}
 		if ( user_can( $user, 'rz_affiliate_portal' ) ) {
 			return self::url( 'affiliate' );
@@ -93,7 +90,7 @@ class RakanZakat_Portal {
 	}
 
 	public static function admin_bar( $show ) {
-		if ( is_user_logged_in() && ! current_user_can( 'manage_options' ) && ( self::can_admin() || self::can_affiliate() ) ) {
+		if ( is_user_logged_in() && current_user_can( 'rz_affiliate_portal' ) && ! current_user_can( 'rz_manage_portal' ) && ! current_user_can( 'manage_options' ) ) {
 			return false;
 		}
 		return $show;
@@ -107,12 +104,8 @@ class RakanZakat_Portal {
 		if ( 'admin-post.php' === $pagenow ) {
 			return;
 		}
-		if ( current_user_can( 'manage_options' ) ) {
+		if ( current_user_can( 'manage_options' ) || current_user_can( 'rz_manage_portal' ) ) {
 			return;
-		}
-		if ( is_user_logged_in() && current_user_can( 'rz_manage_portal' ) ) {
-			wp_safe_redirect( self::url( 'admin' ) );
-			exit;
 		}
 		if ( is_user_logged_in() && current_user_can( 'rz_affiliate_portal' ) ) {
 			wp_safe_redirect( self::url( 'affiliate' ) );

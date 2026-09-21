@@ -36,8 +36,12 @@ class RakanZakat_Activator {
 
 	public static function maybe_upgrade() {
 		$mgr = get_role( 'rz_manager' );
-		if ( $mgr && ! $mgr->has_cap( 'upload_files' ) ) {
-			$mgr->add_cap( 'upload_files' );
+		if ( $mgr ) {
+			foreach ( self::manager_caps() as $cap => $grant ) {
+				if ( $grant ) {
+					$mgr->add_cap( $cap );
+				}
+			}
 		}
 		if ( get_option( 'rakanzakat_db_version' ) !== self::DB_VERSION ) {
 			self::create_tables();
@@ -256,16 +260,53 @@ class RakanZakat_Activator {
 		update_option( 'rakanzakat_settings', $settings );
 	}
 
+	public static function manager_caps() {
+		$caps = array(
+			'read'                    => true,
+			'upload_files'            => true,
+			'edit_posts'              => true,
+			'edit_others_posts'       => true,
+			'edit_published_posts'    => true,
+			'publish_posts'           => true,
+			'edit_pages'              => true,
+			'edit_others_pages'       => true,
+			'edit_published_pages'    => true,
+			'publish_pages'           => true,
+			'delete_pages'            => true,
+			'delete_others_pages'     => true,
+			'delete_published_pages'  => true,
+			'read_private_pages'      => true,
+			'moderate_comments'       => true,
+			'manage_categories'       => true,
+			'unfiltered_html'         => true,
+			'rz_manage_portal'        => true,
+		);
+		$editor = get_role( 'editor' );
+		if ( $editor && is_array( $editor->capabilities ) ) {
+			foreach ( $editor->capabilities as $cap => $grant ) {
+				if ( $grant ) {
+					$caps[ $cap ] = true;
+				}
+			}
+			$caps['rz_manage_portal'] = true;
+		}
+		return $caps;
+	}
+
 	public static function register_roles() {
 		add_role(
 			'rz_manager',
 			__( 'Rakan Zakat Admin', 'rakanzakat' ),
-			array(
-				'read'             => true,
-				'upload_files'     => true,
-				'rz_manage_portal' => true,
-			)
+			self::manager_caps()
 		);
+		$mgr = get_role( 'rz_manager' );
+		if ( $mgr ) {
+			foreach ( self::manager_caps() as $cap => $grant ) {
+				if ( $grant ) {
+					$mgr->add_cap( $cap );
+				}
+			}
+		}
 		add_role(
 			'rz_affiliate',
 			__( 'Rakan Zakat Affiliate', 'rakanzakat' ),

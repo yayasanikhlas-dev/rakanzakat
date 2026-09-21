@@ -243,8 +243,85 @@ class RakanZakat_Stitch_Sections {
 		return ob_get_clean();
 	}
 
+	public static function impact_term( $raw ) {
+		$raw = trim( (string) $raw );
+		if ( '' === $raw ) {
+			$raw = 'impak';
+		}
+		$term = get_term_by( 'slug', sanitize_title( $raw ), 'post_tag' );
+		if ( ! $term ) {
+			$term = get_term_by( 'name', $raw, 'post_tag' );
+		}
+		return ( $term && ! is_wp_error( $term ) ) ? $term : null;
+	}
+
+	public static function impact_cards_from_posts( $args ) {
+		$term  = self::impact_term( $args['post_tag'] ?? 'impak' );
+		$count = max( 1, min( 12, (int) ( $args['posts_count'] ?? 3 ) ) );
+		if ( ! $term ) {
+			return array();
+		}
+		$query = new WP_Query(
+			array(
+				'post_type'           => 'post',
+				'post_status'         => 'publish',
+				'posts_per_page'      => $count,
+				'ignore_sticky_posts' => true,
+				'no_found_rows'       => true,
+				'tax_query'           => array(
+					array(
+						'taxonomy' => 'post_tag',
+						'field'    => 'term_id',
+						'terms'    => (int) $term->term_id,
+					),
+				),
+			)
+		);
+		$cards = array();
+		foreach ( $query->posts as $post ) {
+			$overlay = '';
+			$tags    = get_the_tags( $post->ID );
+			if ( $tags ) {
+				foreach ( $tags as $tag ) {
+					if ( (int) $tag->term_id !== (int) $term->term_id ) {
+						$overlay = $tag->name;
+						break;
+					}
+				}
+				if ( '' === $overlay ) {
+					$overlay = $tags[0]->name;
+				}
+			}
+			$cats  = get_the_category( $post->ID );
+			$badge = ( $cats && ! empty( $cats[0]->name ) ) ? $cats[0]->name : '';
+			$raw   = get_post_field( 'post_excerpt', $post ) ? $post->post_excerpt : wp_strip_all_tags( $post->post_content );
+			$thumb = get_the_post_thumbnail_url( $post, 'large' );
+			$cards[] = array(
+				'image' => array( 'url' => $thumb ? $thumb : '' ),
+				'tag'   => $overlay,
+				'title' => get_the_title( $post ),
+				'text'  => wp_trim_words( $raw, 28, '…' ),
+				'meta'  => get_the_date( '', $post ),
+				'badge' => $badge,
+				'url'   => get_permalink( $post ),
+			);
+		}
+		wp_reset_postdata();
+		return $cards;
+	}
+
 	public static function impact( $args ) {
-		$cards = isset( $args['cards'] ) && is_array( $args['cards'] ) ? $args['cards'] : array();
+		$source = isset( $args['source'] ) ? $args['source'] : 'posts';
+		if ( 'manual' === $source ) {
+			$cards = isset( $args['cards'] ) && is_array( $args['cards'] ) ? $args['cards'] : array();
+		} else {
+			$cards = self::impact_cards_from_posts( $args );
+			$term  = self::impact_term( $args['post_tag'] ?? 'impak' );
+			$href  = self::href( $args['link_url'] ?? '', '' );
+			if ( '' === $href && $term ) {
+				$args['link_url'] = array( 'url' => get_tag_link( $term ) );
+			}
+		}
 		ob_start();
 		?>
 		<section class="rzs rzs-impact">
@@ -260,7 +337,7 @@ class RakanZakat_Stitch_Sections {
 						<?php endif; ?>
 					</div>
 					<?php if ( ! empty( $args['link_text'] ) ) : ?>
-						<a class="rzs-link" href="<?php echo esc_url( self::href( $args['link_url'] ?? '#bayar', '#bayar' ) ); ?>">
+						<a class="rzs-link" href="<?php echo esc_url( self::href( $args['link_url'] ?? '', '#' ) ); ?>">
 							<?php echo esc_html( $args['link_text'] ); ?>
 							<?php echo self::icon( 'arrow' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 						</a>
@@ -269,6 +346,12 @@ class RakanZakat_Stitch_Sections {
 				<div class="rzs-cards-impact">
 					<?php foreach ( $cards as $card ) : ?>
 						<article class="rzs-impact-card">
+							<?php
+							$card_url = self::href( $card['url'] ?? '', '' );
+							$open     = $card_url ? '<a class="rzs-impact-card__link" href="' . esc_url( $card_url ) . '">' : '';
+							$close    = $card_url ? '</a>' : '';
+							echo $open; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							?>
 							<div class="rzs-impact-card__media">
 								<?php if ( ! empty( $card['image']['url'] ) ) : ?>
 									<img src="<?php echo esc_url( $card['image']['url'] ); ?>" alt="<?php echo esc_attr( $card['title'] ?? '' ); ?>">
@@ -287,6 +370,7 @@ class RakanZakat_Stitch_Sections {
 									<?php endif; ?>
 								</div>
 							</div>
+							<?php echo $close; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 						</article>
 					<?php endforeach; ?>
 				</div>

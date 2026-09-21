@@ -461,6 +461,16 @@
   flex-direction: column;
 }
 
+.rzs-impact-card__link {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  color: inherit;
+  text-decoration: none;
+}
+
+.rzs-impact-card__link:hover h3 { color: #0B5EDA; }
+
 .rzs-impact-card img {
   width: 100%;
   height: 220px;

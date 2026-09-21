@@ -1222,7 +1222,41 @@ class RakanZakat_Elementor_Impact_Widget extends RakanZakat_Elementor_Stitch_Bas
 			array(
 				'label'   => __( 'URL pautan kanan', 'rakanzakat' ),
 				'type'    => \Elementor\Controls_Manager::URL,
-				'default' => array( 'url' => '#bayar' ),
+				'default' => array( 'url' => '' ),
+			)
+		);
+		$this->add_control(
+			'source',
+			array(
+				'label'   => __( 'Sumber kisah', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::SELECT,
+				'default' => 'posts',
+				'options' => array(
+					'posts'  => __( 'Post WordPress (ikut tag)', 'rakanzakat' ),
+					'manual' => __( 'Item manual', 'rakanzakat' ),
+				),
+			)
+		);
+		$this->add_control(
+			'post_tag',
+			array(
+				'label'       => __( 'Tag post', 'rakanzakat' ),
+				'description' => __( 'Post yang ada tag ini akan masuk Kisah Impak. Contoh: impak', 'rakanzakat' ),
+				'type'        => \Elementor\Controls_Manager::TEXT,
+				'default'     => 'impak',
+				'placeholder' => 'impak',
+				'condition'   => array( 'source' => 'posts' ),
+			)
+		);
+		$this->add_control(
+			'posts_count',
+			array(
+				'label'     => __( 'Bilangan post', 'rakanzakat' ),
+				'type'      => \Elementor\Controls_Manager::NUMBER,
+				'default'   => 3,
+				'min'       => 1,
+				'max'       => 12,
+				'condition' => array( 'source' => 'posts' ),
 			)
 		);
 		$repeater = new \Elementor\Repeater();
@@ -1280,6 +1314,7 @@ class RakanZakat_Elementor_Impact_Widget extends RakanZakat_Elementor_Stitch_Bas
 				'type'        => \Elementor\Controls_Manager::REPEATER,
 				'fields'      => $repeater->get_controls(),
 				'title_field' => '{{{ title }}}',
+				'condition'   => array( 'source' => 'manual' ),
 				'default'     => array(
 					array(
 						'image' => array(
