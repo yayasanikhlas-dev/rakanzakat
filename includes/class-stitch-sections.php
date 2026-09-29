@@ -719,4 +719,74 @@ class RakanZakat_Stitch_Sections {
 		<?php
 		return ob_get_clean();
 	}
+
+	public static function marquee( $args ) {
+		$gallery = isset( $args['gallery'] ) && is_array( $args['gallery'] ) ? $args['gallery'] : array();
+		$imgs    = array();
+		foreach ( $gallery as $item ) {
+			if ( empty( $item['url'] ) ) {
+				continue;
+			}
+			$imgs[] = array(
+				'url' => $item['url'],
+				'alt' => ! empty( $item['id'] ) ? get_post_meta( (int) $item['id'], '_wp_attachment_image_alt', true ) : '',
+			);
+		}
+		if ( ! $imgs ) {
+			return '';
+		}
+		$base = $imgs;
+		while ( count( $imgs ) < 8 ) {
+			$imgs = array_merge( $imgs, $base );
+		}
+		$dir   = isset( $args['direction'] ) ? $args['direction'] : 'left';
+		if ( ! in_array( $dir, array( 'left', 'right', 'up', 'down' ), true ) ) {
+			$dir = 'left';
+		}
+		$speed = max( 5, min( 120, (int) ( $args['speed'] ?? 28 ) ) );
+		$lanes = max( 1, min( 3, (int) ( $args['lanes'] ?? 2 ) ) );
+		$th    = max( 80, min( 420, (int) ( $args['tile_h'] ?? 180 ) ) );
+		$tw    = max( 120, min( 480, (int) ( $args['tile_w'] ?? 260 ) ) );
+		$gap   = max( 0, min( 32, (int) ( $args['gap'] ?? 8 ) ) );
+		$pause = 'yes' === ( $args['pause_hover'] ?? 'yes' );
+		$vh    = ( $th * $lanes ) + ( $gap * max( 0, $lanes - 1 ) );
+		$cls   = 'rzs rzs-marquee is-' . $dir . ( $pause ? ' is-pause' : '' );
+		$style = '--rzs-mq-speed:' . $speed . 's;--rzs-mq-lanes:' . $lanes . ';--rzs-mq-h:' . $th . 'px;--rzs-mq-w:' . $tw . 'px;--rzs-mq-gap:' . $gap . 'px;--rzs-mq-vh:' . $vh . 'px;';
+		$cap   = trim( (string) ( $args['caption'] ?? '' ) );
+		$href  = self::href( $args['caption_url'] ?? '', '' );
+		ob_start();
+		?>
+		<section class="<?php echo esc_attr( $cls ); ?>" style="<?php echo esc_attr( $style ); ?>">
+			<div class="rzs-inner rzs-marquee__inner">
+				<div class="rzs-marquee__frame">
+					<div class="rzs-marquee__viewport">
+						<div class="rzs-marquee__track">
+							<?php for ( $copy = 0; $copy < 2; $copy++ ) : ?>
+								<div class="rzs-marquee__set"<?php echo 1 === $copy ? ' aria-hidden="true"' : ''; ?>>
+									<?php foreach ( $imgs as $img ) : ?>
+										<img src="<?php echo esc_url( $img['url'] ); ?>" alt="<?php echo esc_attr( $img['alt'] ); ?>" loading="lazy">
+									<?php endforeach; ?>
+								</div>
+							<?php endfor; ?>
+						</div>
+					</div>
+					<?php if ( '' !== $cap ) : ?>
+						<?php if ( $href ) : ?>
+							<a class="rzs-marquee__label" href="<?php echo esc_url( $href ); ?>">
+								<?php echo esc_html( $cap ); ?>
+								<?php echo self::icon( 'arrow' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+							</a>
+						<?php else : ?>
+							<span class="rzs-marquee__label">
+								<?php echo esc_html( $cap ); ?>
+								<?php echo self::icon( 'arrow' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+							</span>
+						<?php endif; ?>
+					<?php endif; ?>
+				</div>
+			</div>
+		</section>
+		<?php
+		return ob_get_clean();
+	}
 }

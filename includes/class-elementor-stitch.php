@@ -63,9 +63,11 @@ abstract class RakanZakat_Elementor_Stitch_Base extends \Elementor\Widget_Base {
 
 	protected function register_style_controls() {
 		$this->style_section();
-		$this->style_heading();
 		$name = $this->get_name();
-		if ( 'rakanzakat_cta' !== $name ) {
+		if ( 'rakanzakat_marquee' !== $name ) {
+			$this->style_heading();
+		}
+		if ( 'rakanzakat_cta' !== $name && 'rakanzakat_marquee' !== $name ) {
 			$this->style_cards();
 		}
 		if ( 'rakanzakat_faq_v2' === $name ) {
@@ -77,8 +79,13 @@ abstract class RakanZakat_Elementor_Stitch_Base extends \Elementor\Widget_Base {
 		if ( 'rakanzakat_calc' === $name ) {
 			$this->style_calc();
 		}
-		$this->style_buttons();
-		$this->style_chip();
+		if ( 'rakanzakat_marquee' === $name ) {
+			$this->style_marquee();
+		}
+		if ( 'rakanzakat_marquee' !== $name ) {
+			$this->style_buttons();
+			$this->style_chip();
+		}
 	}
 
 	private static function no_global() {
@@ -554,6 +561,56 @@ abstract class RakanZakat_Elementor_Stitch_Base extends \Elementor\Widget_Base {
 				'global'  => self::no_global(),
 				'selectors' => array(
 					'{{WRAPPER}} .rzs-calc-result__sum' => 'color: {{VALUE}};',
+				),
+			)
+		);
+		$this->end_controls_section();
+	}
+
+	private function style_marquee() {
+		$this->start_controls_section(
+			'style_marquee',
+			array(
+				'label' => __( 'Gambar & kapsyen', 'rakanzakat' ),
+				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
+			)
+		);
+		$this->add_control(
+			'tile_radius',
+			array(
+				'label'      => __( 'Radius gambar', 'rakanzakat' ),
+				'type'       => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => array( 'px' ),
+				'range'      => array(
+					'px' => array(
+						'min' => 0,
+						'max' => 32,
+					),
+				),
+				'selectors'  => array(
+					'{{WRAPPER}} .rzs-marquee' => '--rzs-mq-radius: {{SIZE}}{{UNIT}};',
+				),
+			)
+		);
+		$this->add_control(
+			'caption_bg',
+			array(
+				'label'     => __( 'Latar kapsyen', 'rakanzakat' ),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'global'    => self::no_global(),
+				'selectors' => array(
+					'{{WRAPPER}} .rzs-marquee__label' => 'background-color: {{VALUE}};',
+				),
+			)
+		);
+		$this->add_control(
+			'caption_color',
+			array(
+				'label'     => __( 'Warna kapsyen', 'rakanzakat' ),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'global'    => self::no_global(),
+				'selectors' => array(
+					'{{WRAPPER}} .rzs-marquee__label' => 'color: {{VALUE}};',
 				),
 			)
 		);
@@ -1859,5 +1916,142 @@ class RakanZakat_Elementor_Calc_Widget extends RakanZakat_Elementor_Stitch_Base 
 
 	protected function render() {
 		echo RakanZakat_Stitch_Sections::calculator( $this->get_settings_for_display() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	}
+}
+
+class RakanZakat_Elementor_Marquee_Widget extends RakanZakat_Elementor_Stitch_Base {
+
+	public function get_name() {
+		return 'rakanzakat_marquee';
+	}
+
+	public function get_title() {
+		return __( 'RZ: Carousel Gambar', 'rakanzakat' );
+	}
+
+	public function get_icon() {
+		return 'eicon-slider-push';
+	}
+
+	public function get_keywords() {
+		return array( 'zakat', 'carousel', 'galeri', 'gambar', 'marquee' );
+	}
+
+	protected function register_controls() {
+		$this->start_controls_section(
+			'content_section',
+			array(
+				'label' => __( 'Kandungan', 'rakanzakat' ),
+				'tab'   => \Elementor\Controls_Manager::TAB_CONTENT,
+			)
+		);
+		$this->add_control(
+			'gallery',
+			array(
+				'label'       => __( 'Gambar', 'rakanzakat' ),
+				'type'        => \Elementor\Controls_Manager::GALLERY,
+				'show_label'  => true,
+				'default'     => array(),
+				'description' => __( 'Pilih beberapa gambar. Ia akan auto-scroll tanpa henti.', 'rakanzakat' ),
+			)
+		);
+		$this->add_control(
+			'direction',
+			array(
+				'label'   => __( 'Arah', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::SELECT,
+				'default' => 'left',
+				'options' => array(
+					'left'  => __( 'Kiri', 'rakanzakat' ),
+					'right' => __( 'Kanan', 'rakanzakat' ),
+					'up'    => __( 'Atas', 'rakanzakat' ),
+					'down'  => __( 'Bawah', 'rakanzakat' ),
+				),
+			)
+		);
+		$this->add_control(
+			'speed',
+			array(
+				'label'       => __( 'Kelajuan (saat / kitaran)', 'rakanzakat' ),
+				'description' => __( 'Nombor kecil = lebih laju.', 'rakanzakat' ),
+				'type'        => \Elementor\Controls_Manager::NUMBER,
+				'default'     => 28,
+				'min'         => 5,
+				'max'         => 120,
+				'step'        => 1,
+			)
+		);
+		$this->add_control(
+			'pause_hover',
+			array(
+				'label'        => __( 'Jeda bila hover', 'rakanzakat' ),
+				'type'         => \Elementor\Controls_Manager::SWITCHER,
+				'return_value' => 'yes',
+				'default'      => 'yes',
+			)
+		);
+		$this->add_control(
+			'lanes',
+			array(
+				'label'   => __( 'Baris / lajur', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::NUMBER,
+				'default' => 2,
+				'min'     => 1,
+				'max'     => 3,
+			)
+		);
+		$this->add_control(
+			'tile_h',
+			array(
+				'label'   => __( 'Tinggi jubin (px)', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::NUMBER,
+				'default' => 180,
+				'min'     => 80,
+				'max'     => 420,
+			)
+		);
+		$this->add_control(
+			'tile_w',
+			array(
+				'label'   => __( 'Lebar jubin (px)', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::NUMBER,
+				'default' => 260,
+				'min'     => 120,
+				'max'     => 480,
+			)
+		);
+		$this->add_control(
+			'gap',
+			array(
+				'label'   => __( 'Jarak (px)', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::NUMBER,
+				'default' => 8,
+				'min'     => 0,
+				'max'     => 32,
+			)
+		);
+		$this->add_control(
+			'caption',
+			array(
+				'label'       => __( 'Kapsyen (pojok)', 'rakanzakat' ),
+				'type'        => \Elementor\Controls_Manager::TEXT,
+				'default'     => '',
+				'placeholder' => 'Infak Projek Yayasan Ikhlas',
+			)
+		);
+		$this->add_control(
+			'caption_url',
+			array(
+				'label'   => __( 'Pautan kapsyen', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::URL,
+				'default' => array( 'url' => '' ),
+			)
+		);
+		$this->end_controls_section();
+		$this->register_style_controls();
+	}
+
+	protected function render() {
+		echo RakanZakat_Stitch_Sections::marquee( $this->get_settings_for_display() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 }
