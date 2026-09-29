@@ -250,6 +250,29 @@ html {
   scroll-behavior: smooth;
 }
 
+body.elementor-page,
+body.elementor-default {
+  overflow-x: hidden;
+}
+
+@media (max-width: 1024px) {
+  .e-transform,
+  .elementor-element.e-transform {
+    transform: none !important;
+  }
+
+  .elementor-motion-effects-container,
+  .elementor-motion-effects-layer,
+  .elementor-motion-effects-parent > .elementor-motion-effects-container {
+    transform: none !important;
+    perspective: none !important;
+  }
+
+  .elementor-element.e-con {
+    min-width: 0;
+  }
+}
+
 @media (max-width: 900px) {
   .rz-lp__nav {
     flex-direction: column;

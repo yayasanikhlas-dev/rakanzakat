@@ -13,6 +13,8 @@
   background-color: #FFFFFF;
   color: #1F2937;
   width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
   padding: 24px 12px;
 }
 
@@ -126,7 +128,14 @@
 }
 
 @media (max-width: 767px) {
-  .js-rakanzakat-form .rzf-hero__title { font-size: 28px; }
+  .js-rakanzakat-form .rzf-hero__title { font-size: 28px; overflow-wrap: anywhere; }
+  .js-rakanzakat-form .rzf-hero__step {
+    font-size: 10px;
+    padding: 0 4px;
+    gap: 6px;
+  }
+  .js-rakanzakat-form .rzf-card { padding: 16px; }
+  .js-rakanzakat-form .custom-input { font-size: 16px !important; }
 }
 
 .js-rakanzakat-form .rzf-card {
@@ -219,7 +228,7 @@
   border: 1px solid #E5E7EB !important;
   border-radius: 12px !important;
   padding: 14px 16px !important;
-  font-size: 15px !important;
+  font-size: 16px !important;
   line-height: 1.4 !important;
   color: #111827 !important;
   transition: all 0.15s ease-in-out;
