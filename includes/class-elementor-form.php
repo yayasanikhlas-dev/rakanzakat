@@ -22,7 +22,7 @@ class RakanZakat_Elementor_Form_Widget extends \Elementor\Widget_Base {
 	}
 
 	public function get_categories() {
-		return array( 'rakanzakat', 'general' );
+		return array( 'rakanzakat' );
 	}
 
 	public function get_keywords() {

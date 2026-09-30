@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) || exit;
 abstract class RakanZakat_Elementor_Stitch_Base extends \Elementor\Widget_Base {
 
 	public function get_categories() {
-		return array( 'rakanzakat', 'general' );
+		return array( 'rakanzakat' );
 	}
 
 	public function get_style_depends() {

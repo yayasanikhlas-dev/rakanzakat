@@ -226,10 +226,100 @@
     }
   });
 
+  function initHeroSlides(root) {
+    if (!root || root.getAttribute("data-rz-hero-ready") === "1") return;
+    if (document.body.classList.contains("elementor-editor-active")) return;
+    var track = root.querySelector(".rzs-hero-slides__track");
+    if (!track) return;
+    var slides = [];
+    for (var c = 0; c < track.children.length; c++) {
+      if (track.children[c].classList && track.children[c].classList.contains("rzs-hero-slides__slide")) {
+        slides.push(track.children[c]);
+      }
+    }
+    var total = slides.length;
+    if (total < 2) return;
+    root.setAttribute("data-rz-hero-ready", "1");
+    var index = 0;
+    var loop = root.getAttribute("data-loop") !== "0";
+    var autoplay = root.getAttribute("data-autoplay") === "1";
+    var delay = Math.max(2, parseInt(root.getAttribute("data-delay") || "6", 10)) * 1000;
+    var timer = null;
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var dotsWrap = root.querySelector(".js-rz-hero-dots");
+
+    function go(i) {
+      if (loop) {
+        index = (i + total) % total;
+      } else {
+        index = Math.max(0, Math.min(total - 1, i));
+      }
+      track.style.transform = "translateX(-" + index * 100 + "%)";
+      if (dotsWrap) {
+        dotsWrap.querySelectorAll(".rzs-hero-slides__dot").forEach(function (dot, d) {
+          dot.classList.toggle("is-on", d === index);
+        });
+      }
+    }
+
+    function next() { go(index + 1); }
+    function prev() { go(index - 1); }
+
+    function start() {
+      stop();
+      if (!autoplay || reduce) return;
+      timer = window.setInterval(next, delay);
+    }
+    function stop() {
+      if (timer) window.clearInterval(timer);
+      timer = null;
+    }
+
+    if (dotsWrap && !dotsWrap.childElementCount) {
+      for (var d = 0; d < total; d++) {
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "rzs-hero-slides__dot" + (d === 0 ? " is-on" : "");
+        btn.setAttribute("aria-label", "Slide " + (d + 1));
+        btn.addEventListener("click", function (n) {
+          return function () { go(n); start(); };
+        }(d));
+        dotsWrap.appendChild(btn);
+      }
+    }
+
+    var nextBtn = root.querySelector(".js-rz-hero-next");
+    var prevBtn = root.querySelector(".js-rz-hero-prev");
+    if (nextBtn) nextBtn.addEventListener("click", function () { next(); start(); });
+    if (prevBtn) prevBtn.addEventListener("click", function () { prev(); start(); });
+    root.addEventListener("mouseenter", stop);
+    root.addEventListener("mouseleave", start);
+
+    var startX = 0;
+    root.addEventListener("touchstart", function (e) {
+      if (!e.changedTouches || !e.changedTouches[0]) return;
+      startX = e.changedTouches[0].clientX;
+      stop();
+    }, { passive: true });
+    root.addEventListener("touchend", function (e) {
+      if (!e.changedTouches || !e.changedTouches[0]) return;
+      var dx = e.changedTouches[0].clientX - startX;
+      if (Math.abs(dx) > 40) {
+        if (dx < 0) next();
+        else prev();
+      }
+      start();
+    }, { passive: true });
+
+    go(0);
+    start();
+  }
+
   function initCalcs() {
     document.querySelectorAll(".js-rz-calc").forEach(function (root) {
       updateCalc(root);
     });
+    document.querySelectorAll(".js-rz-hero-slides").forEach(initHeroSlides);
   }
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", initCalcs);
@@ -241,6 +331,10 @@
     window.elementorFrontend.hooks.addAction("frontend/element_ready/rakanzakat_calc.default", function ($scope) {
       var el = $scope && $scope[0] ? $scope[0].querySelector(".js-rz-calc") : null;
       if (el) updateCalc(el);
+    });
+    window.elementorFrontend.hooks.addAction("frontend/element_ready/rakanzakat_hero_slides.default", function ($scope) {
+      var el = $scope && $scope[0] ? $scope[0].querySelector(".js-rz-hero-slides") : null;
+      if (el) initHeroSlides(el);
     });
   });
 })();

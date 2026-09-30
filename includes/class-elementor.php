@@ -81,5 +81,9 @@ class RakanZakat_Elementor {
 		$widgets_manager->register( new RakanZakat_Elementor_Cta_Widget() );
 		$widgets_manager->register( new RakanZakat_Elementor_Calc_Widget() );
 		$widgets_manager->register( new RakanZakat_Elementor_Marquee_Widget() );
+		require_once RAKANZAKAT_PATH . 'includes/class-elementor-hero-slides.php';
+		if ( class_exists( 'RakanZakat_Elementor_Hero_Slides_Widget' ) ) {
+			$widgets_manager->register( new RakanZakat_Elementor_Hero_Slides_Widget() );
+		}
 	}
 }
