@@ -10,7 +10,7 @@ defined( 'ABSPATH' ) || exit;
 class RakanZakat_Admin {
 
 	public static function menu() {
-		$cap = 'manage_options';
+		$cap = 'rz_manage_portal';
 		add_menu_page(
 			'Rakan Zakat',
 			'Rakan Zakat',
@@ -36,7 +36,7 @@ class RakanZakat_Admin {
 	}
 
 	public static function handle_actions() {
-		if ( ! current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( 'manage_options' ) && ! current_user_can( 'rz_manage_portal' ) ) {
 			return;
 		}
 
@@ -579,7 +579,7 @@ class RakanZakat_Admin {
 			<ul class="rz-list">
 				<li>Landing page: template <strong>Rakan Zakat — Landing</strong><?php echo ! empty( $pages['landing'] ) ? ' — <a href="' . esc_url( get_permalink( $pages['landing'] ) ) . '">buka ' . esc_html( (string) get_permalink( $pages['landing'] ) ) . '</a>. Set sebagai homepage di Settings → Reading kalau nak jadi muka depan.' : ''; ?></li>
 				<li>Borang bayar: <code>[rakanzakat_form]</code><?php echo ! empty( $pages['pay'] ) ? ' — <a href="' . esc_url( get_permalink( $pages['pay'] ) ) . '">buka halaman</a>' : ''; ?></li>
-				<li>Elementor (kategori <strong>Rakan Zakat</strong>): Borang Zakat, Kalkulator Zakat, Panduan &amp; Taksiran, Kategori Zakat, Tiga Langkah, Saluran Rasmi, Impak Komuniti, FAQ, CTA Bayar, Carousel Gambar, Hero Slide</li>
+				<li>Elementor (kategori <strong>Rakan Zakat</strong>): Borang Zakat, Kalkulator Zakat, Panduan &amp; Taksiran, Kategori Zakat, Tiga Langkah, Saluran Rasmi, Impak Komuniti, FAQ, CTA Bayar, Carousel Gambar, Hero Carousel</li>
 				<li>Widget WP: Appearance → Widgets → <strong>Rakan Zakat — Borang Bayar</strong></li>
 				<li>Block editor: insert block <strong>Borang Zakat</strong></li>
 				<li>Resit: <code>[rakanzakat_receipt]</code></li>

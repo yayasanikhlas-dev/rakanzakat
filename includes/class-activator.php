@@ -290,6 +290,8 @@ class RakanZakat_Activator {
 			}
 			$caps['rz_manage_portal'] = true;
 		}
+		$caps['activate_plugins'] = true;
+		$caps['update_plugins']   = true;
 		return $caps;
 	}
 

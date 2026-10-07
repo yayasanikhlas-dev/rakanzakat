@@ -1,6 +1,6 @@
 <?php
 /**
- * Nested Elementor hero slider: drop containers into each slide.
+ * Nested Elementor hero carousel: each slide is a container you can fill.
  *
  * @package RakanZakat
  */
@@ -18,7 +18,7 @@ class RakanZakat_Elementor_Hero_Slides_Widget extends \Elementor\Modules\NestedE
 	}
 
 	public function get_title() {
-		return __( 'RZ: Hero Slide', 'rakanzakat' );
+		return __( 'RZ: Hero Carousel', 'rakanzakat' );
 	}
 
 	public function get_icon() {
@@ -30,7 +30,7 @@ class RakanZakat_Elementor_Hero_Slides_Widget extends \Elementor\Modules\NestedE
 	}
 
 	public function get_keywords() {
-		return array( 'zakat', 'hero', 'slide', 'slider', 'carousel' );
+		return array( 'zakat', 'hero', 'slide', 'slider', 'carousel', 'container' );
 	}
 
 	public function get_style_depends() {
@@ -39,6 +39,13 @@ class RakanZakat_Elementor_Hero_Slides_Widget extends \Elementor\Modules\NestedE
 
 	public function get_script_depends() {
 		return array( 'rakanzakat-stitch' );
+	}
+
+	public function show_in_panel() {
+		if ( ! class_exists( '\Elementor\Plugin' ) || empty( \Elementor\Plugin::$instance->experiments ) ) {
+			return true;
+		}
+		return (bool) \Elementor\Plugin::$instance->experiments->is_feature_active( 'container' );
 	}
 
 	protected function get_default_children_elements() {
@@ -53,14 +60,15 @@ class RakanZakat_Elementor_Hero_Slides_Widget extends \Elementor\Modules\NestedE
 		return array(
 			'elType'   => 'container',
 			'settings' => array(
-				'_title'         => sprintf(
+				'_title'               => sprintf(
 					/* translators: %d: slide number */
 					__( 'Slide #%d', 'rakanzakat' ),
 					$index
 				),
-				'content_width'  => 'full',
-				'flex_direction' => 'column',
+				'content_width'        => 'full',
+				'flex_direction'       => 'column',
 				'flex_justify_content' => 'center',
+				'flex_align_items'     => 'center',
 			),
 		);
 	}
@@ -77,16 +85,13 @@ class RakanZakat_Elementor_Hero_Slides_Widget extends \Elementor\Modules\NestedE
 		return '.rzs-hero-slides__track';
 	}
 
-	protected function get_default_children_container_placeholder_selector() {
-		return '.rzs-hero-slides__slide';
-	}
-
 	protected function get_initial_config() {
 		$config = parent::get_initial_config();
 		$config['support_improved_repeaters'] = true;
+		$config['support_nesting']            = true;
 		$config['target_container']           = array( '.rzs-hero-slides__track' );
 		$config['node']                       = 'div';
-		$config['is_interlaced']              = true;
+		$config['is_interlaced']              = false;
 		return $config;
 	}
 
@@ -94,8 +99,17 @@ class RakanZakat_Elementor_Hero_Slides_Widget extends \Elementor\Modules\NestedE
 		$this->start_controls_section(
 			'content_section',
 			array(
-				'label' => __( 'Slide', 'rakanzakat' ),
+				'label' => __( 'Carousel', 'rakanzakat' ),
 				'tab'   => \Elementor\Controls_Manager::TAB_CONTENT,
+			)
+		);
+
+		$this->add_control(
+			'howto',
+			array(
+				'type'            => \Elementor\Controls_Manager::RAW_HTML,
+				'raw'             => '<p style="line-height:1.45;margin:0">' . esc_html__( 'Setiap slide ialah container Elementor. Klik slide pada kanvas, kemudian drop Heading, Text, Image atau Container ke dalamnya — sama macam Nested Carousel.', 'rakanzakat' ) . '</p>',
+				'content_classes' => 'elementor-panel-alert elementor-panel-alert-info',
 			)
 		);
 
@@ -223,52 +237,58 @@ class RakanZakat_Elementor_Hero_Slides_Widget extends \Elementor\Modules\NestedE
 				<div class="rzs-hero-slides__track">
 					<?php
 					for ( $i = 0; $i < $count; $i++ ) {
-						echo '<div class="rzs-hero-slides__slide">';
 						$this->print_child( $i );
-						echo '</div>';
 					}
 					?>
 				</div>
 			</div>
-			<?php if ( $arrows && $count > 1 ) : ?>
+			<?php if ( $arrows ) : ?>
 				<button type="button" class="rzs-hero-slides__arrow rzs-hero-slides__arrow--prev js-rz-hero-prev" aria-label="<?php esc_attr_e( 'Slide sebelum', 'rakanzakat' ); ?>"><?php echo RakanZakat_Stitch_Sections::icon( 'arrow' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></button>
 				<button type="button" class="rzs-hero-slides__arrow rzs-hero-slides__arrow--next js-rz-hero-next" aria-label="<?php esc_attr_e( 'Slide seterusnya', 'rakanzakat' ); ?>"><?php echo RakanZakat_Stitch_Sections::icon( 'arrow' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></button>
 			<?php endif; ?>
-			<?php if ( $dots && $count > 1 ) : ?>
+			<?php if ( $dots ) : ?>
 				<div class="rzs-hero-slides__dots js-rz-hero-dots" role="tablist"></div>
 			<?php endif; ?>
 		</div>
 		<?php
 	}
 
+	public function print_child( $index, $item_settings = array() ) {
+		$children = $this->get_children();
+		$child    = isset( $children[ $index ] ) ? $children[ $index ] : null;
+		if ( ! $child ) {
+			return;
+		}
+
+		$mark = function ( $should_render, $container ) use ( $child ) {
+			if ( $container->get_id() === $child->get_id() ) {
+				$container->add_render_attribute( '_wrapper', 'class', 'rzs-hero-slides__slide' );
+			}
+			return $should_render;
+		};
+
+		add_filter( 'elementor/frontend/container/should_render', $mark, 10, 2 );
+		$child->print_element();
+		remove_filter( 'elementor/frontend/container/should_render', $mark );
+	}
+
 	protected function content_template() {
 		?>
 		<#
 		var items = settings.items || [];
-		var count = items.length;
 		#>
 		<div class="rzs rzs-hero-slides js-rz-hero-slides" data-autoplay="{{ 'yes' === settings.autoplay ? '1' : '0' }}" data-delay="{{ settings.delay || 6 }}" data-loop="{{ 'yes' === settings.loop ? '1' : '0' }}">
 			<div class="rzs-hero-slides__viewport">
-				<div class="rzs-hero-slides__track">
-					<# _.each( items, function( item, index ) { #>
-						<div class="rzs-hero-slides__slide"></div>
-					<# } ); #>
-				</div>
+				<div class="rzs-hero-slides__track"></div>
 			</div>
-			<# if ( 'yes' === settings.show_arrows && count > 1 ) { #>
-				<button type="button" class="rzs-hero-slides__arrow rzs-hero-slides__arrow--prev js-rz-hero-prev"></button>
-				<button type="button" class="rzs-hero-slides__arrow rzs-hero-slides__arrow--next js-rz-hero-next"></button>
+			<# if ( 'yes' === settings.show_arrows ) { #>
+				<button type="button" class="rzs-hero-slides__arrow rzs-hero-slides__arrow--prev js-rz-hero-prev" aria-label="<?php echo esc_attr__( 'Slide sebelum', 'rakanzakat' ); ?>"></button>
+				<button type="button" class="rzs-hero-slides__arrow rzs-hero-slides__arrow--next js-rz-hero-next" aria-label="<?php echo esc_attr__( 'Slide seterusnya', 'rakanzakat' ); ?>"></button>
 			<# } #>
-			<# if ( 'yes' === settings.show_dots && count > 1 ) { #>
+			<# if ( 'yes' === settings.show_dots ) { #>
 				<div class="rzs-hero-slides__dots js-rz-hero-dots"></div>
 			<# } #>
 		</div>
-		<?php
-	}
-
-	protected function content_template_single_repeater_item() {
-		?>
-		<div class="rzs-hero-slides__slide"></div>
 		<?php
 	}
 }
