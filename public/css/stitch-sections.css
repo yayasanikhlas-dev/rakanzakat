@@ -136,6 +136,18 @@
 .rzs-cards-4 { grid-template-columns: repeat(4, 1fr); }
 .rzs-cards-impact { grid-template-columns: repeat(3, 1fr); }
 
+.rzs-impact__empty {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 24px;
+  background: #fff;
+  border: 1px dashed #cbd5e1;
+  border-radius: 16px;
+  color: #475569;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
 .rzs-card {
   background: #fff;
   border: 1px solid #E2E8F0;

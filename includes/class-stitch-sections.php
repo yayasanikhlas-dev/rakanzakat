@@ -248,59 +248,119 @@ class RakanZakat_Stitch_Sections {
 		if ( '' === $raw ) {
 			$raw = 'impak';
 		}
-		$term = get_term_by( 'slug', sanitize_title( $raw ), 'post_tag' );
-		if ( ! $term ) {
-			$term = get_term_by( 'name', $raw, 'post_tag' );
+		$slug = sanitize_title( $raw );
+		foreach ( array( 'post_tag', 'category' ) as $tax ) {
+			$term = get_term_by( 'slug', $slug, $tax );
+			if ( ! $term || is_wp_error( $term ) ) {
+				$term = get_term_by( 'name', $raw, $tax );
+			}
+			if ( $term && ! is_wp_error( $term ) ) {
+				return $term;
+			}
 		}
-		return ( $term && ! is_wp_error( $term ) ) ? $term : null;
+		return null;
+	}
+
+	public static function impact_post_types() {
+		$skip  = array( 'attachment', 'page', 'elementor_library', 'e-floating-buttons', 'e-landing-page' );
+		$types = array( 'post' );
+		foreach ( get_post_types( array( 'public' => true ), 'names' ) as $type ) {
+			if ( in_array( $type, $skip, true ) ) {
+				continue;
+			}
+			if ( is_object_in_taxonomy( $type, 'post_tag' ) || is_object_in_taxonomy( $type, 'category' ) ) {
+				$types[] = $type;
+			}
+		}
+		return array_values( array_unique( $types ) );
 	}
 
 	public static function impact_cards_from_posts( $args ) {
-		$term  = self::impact_term( $args['post_tag'] ?? 'impak' );
-		$count = max( 1, min( 12, (int) ( $args['posts_count'] ?? 3 ) ) );
-		if ( ! $term ) {
-			return array();
+		$raw = trim( (string) ( $args['post_tag'] ?? 'impak' ) );
+		if ( '' === $raw ) {
+			$raw = 'impak';
 		}
-		$query = new WP_Query(
-			array(
-				'post_type'           => 'post',
-				'post_status'         => 'publish',
-				'posts_per_page'      => $count,
-				'ignore_sticky_posts' => true,
-				'no_found_rows'       => true,
-				'tax_query'           => array(
-					array(
-						'taxonomy' => 'post_tag',
-						'field'    => 'term_id',
-						'terms'    => (int) $term->term_id,
-					),
-				),
-			)
+		$term  = self::impact_term( $raw );
+		$count = max( 1, min( 12, (int) ( $args['posts_count'] ?? 3 ) ) );
+		$slug  = sanitize_title( $raw );
+
+		$query_args = array(
+			'post_type'           => self::impact_post_types(),
+			'post_status'         => 'publish',
+			'posts_per_page'      => $count,
+			'ignore_sticky_posts' => true,
+			'no_found_rows'       => true,
 		);
+		if ( $term ) {
+			$query_args['tax_query'] = array(
+				array(
+					'taxonomy' => $term->taxonomy,
+					'field'    => 'term_id',
+					'terms'    => (int) $term->term_id,
+				),
+			);
+		} else {
+			$query_args['tax_query'] = array(
+				'relation' => 'OR',
+				array(
+					'taxonomy' => 'post_tag',
+					'field'    => 'slug',
+					'terms'    => $slug,
+				),
+				array(
+					'taxonomy' => 'category',
+					'field'    => 'slug',
+					'terms'    => $slug,
+				),
+			);
+		}
+		if ( function_exists( 'pll_languages_list' ) ) {
+			$query_args['lang'] = '';
+		}
+
+		$query = new WP_Query( $query_args );
+		if ( empty( $query->posts ) ) {
+			$query_args['suppress_filters'] = true;
+			$query                          = new WP_Query( $query_args );
+		}
+
 		$cards = array();
 		foreach ( $query->posts as $post ) {
 			$overlay = '';
 			$tags    = get_the_tags( $post->ID );
 			if ( $tags ) {
 				foreach ( $tags as $tag ) {
-					if ( (int) $tag->term_id !== (int) $term->term_id ) {
-						$overlay = $tag->name;
-						break;
+					if ( $term && 'post_tag' === $term->taxonomy && (int) $tag->term_id === (int) $term->term_id ) {
+						continue;
 					}
+					$overlay = $tag->name;
+					break;
 				}
 				if ( '' === $overlay ) {
 					$overlay = $tags[0]->name;
 				}
 			}
 			$cats  = get_the_category( $post->ID );
-			$badge = ( $cats && ! empty( $cats[0]->name ) ) ? $cats[0]->name : '';
-			$raw   = get_post_field( 'post_excerpt', $post ) ? $post->post_excerpt : wp_strip_all_tags( $post->post_content );
-			$thumb = get_the_post_thumbnail_url( $post, 'large' );
+			$badge = '';
+			if ( $cats ) {
+				foreach ( $cats as $cat ) {
+					if ( $term && 'category' === $term->taxonomy && (int) $cat->term_id === (int) $term->term_id ) {
+						continue;
+					}
+					$badge = $cat->name;
+					break;
+				}
+				if ( '' === $badge ) {
+					$badge = $cats[0]->name;
+				}
+			}
+			$excerpt = $post->post_excerpt ? $post->post_excerpt : wp_strip_all_tags( $post->post_content );
+			$thumb   = get_the_post_thumbnail_url( $post, 'large' );
 			$cards[] = array(
 				'image' => array( 'url' => $thumb ? $thumb : '' ),
 				'tag'   => $overlay,
 				'title' => get_the_title( $post ),
-				'text'  => wp_trim_words( $raw, 28, '…' ),
+				'text'  => wp_trim_words( $excerpt, 28, '…' ),
 				'meta'  => get_the_date( '', $post ),
 				'badge' => $badge,
 				'url'   => get_permalink( $post ),
@@ -311,15 +371,22 @@ class RakanZakat_Stitch_Sections {
 	}
 
 	public static function impact( $args ) {
-		$source = isset( $args['source'] ) ? $args['source'] : 'posts';
+		$source = ( isset( $args['source'] ) && 'manual' === $args['source'] ) ? 'manual' : 'posts';
+		$tag_in = trim( (string) ( $args['post_tag'] ?? 'impak' ) );
+		if ( '' === $tag_in ) {
+			$tag_in = 'impak';
+		}
 		if ( 'manual' === $source ) {
 			$cards = isset( $args['cards'] ) && is_array( $args['cards'] ) ? $args['cards'] : array();
 		} else {
 			$cards = self::impact_cards_from_posts( $args );
-			$term  = self::impact_term( $args['post_tag'] ?? 'impak' );
+			$term  = self::impact_term( $tag_in );
 			$href  = self::href( $args['link_url'] ?? '', '' );
 			if ( '' === $href && $term ) {
-				$args['link_url'] = array( 'url' => get_tag_link( $term ) );
+				$link = get_term_link( $term );
+				if ( ! is_wp_error( $link ) ) {
+					$args['link_url'] = array( 'url' => $link );
+				}
 			}
 		}
 		ob_start();
@@ -344,6 +411,9 @@ class RakanZakat_Stitch_Sections {
 					<?php endif; ?>
 				</div>
 				<div class="rzs-cards-impact">
+					<?php if ( empty( $cards ) && 'manual' !== $source ) : ?>
+						<p class="rzs-impact__empty">Tiada post published dengan tag atau kategori <strong><?php echo esc_html( $tag_in ); ?></strong>. Edit post blog, letak tag/kategori tu, pastikan status Publish.</p>
+					<?php endif; ?>
 					<?php foreach ( $cards as $card ) : ?>
 						<article class="rzs-impact-card">
 							<?php

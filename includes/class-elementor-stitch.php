@@ -1298,7 +1298,7 @@ class RakanZakat_Elementor_Impact_Widget extends RakanZakat_Elementor_Stitch_Bas
 			'post_tag',
 			array(
 				'label'       => __( 'Tag post', 'rakanzakat' ),
-				'description' => __( 'Post yang ada tag ini akan masuk Kisah Impak. Contoh: impak', 'rakanzakat' ),
+				'description' => __( 'Tag atau kategori WordPress. Post/blog published yang ada nama ni akan masuk. Contoh: impak', 'rakanzakat' ),
 				'type'        => \Elementor\Controls_Manager::TEXT,
 				'default'     => 'impak',
 				'placeholder' => 'impak',
