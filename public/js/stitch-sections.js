@@ -73,7 +73,8 @@
       amount_label: cfg.amount_label || (mode === "head" ? "Bilangan individu" : "Nilai / Amaun (RM)"),
       amount_value: cfg.amount_value,
       period: cfg.period == null ? "/ setahun" : String(cfg.period),
-      hint: cfg.hint || ""
+      hint: cfg.hint || "",
+      gold_nisab_grams: cfg.gold_nisab_grams != null ? parseFloat(cfg.gold_nisab_grams) : 85
     };
   }
 
@@ -84,8 +85,10 @@
   function applyTypeUi(root, cfg, resetValues) {
     var income = root.querySelector(".js-rz-calc-income");
     var amountWrap = root.querySelector(".js-rz-calc-amount");
+    var goldWrap = root.querySelector(".js-rz-calc-gold");
     if (income) income.hidden = cfg.mode !== "income";
-    if (amountWrap) amountWrap.hidden = cfg.mode === "income";
+    if (amountWrap) amountWrap.hidden = cfg.mode === "income" || cfg.mode === "gold";
+    if (goldWrap) goldWrap.hidden = cfg.mode !== "gold";
     setText(root.querySelector(".js-rz-calc-gaji-label"), cfg.field_a_label);
     setText(root.querySelector(".js-rz-calc-kifayah-label"), cfg.field_b_label);
     setText(root.querySelector(".js-rz-calc-nilai-label"), cfg.amount_label);
@@ -110,6 +113,8 @@
     if (nisab) {
       if (cfg.skip_nisab) {
         nisab.textContent = "Tiada syarat nisab";
+      } else if (cfg.mode === "gold") {
+        nisab.innerHTML = "Nisab emas: <strong>" + trimRate(cfg.gold_nisab_grams || 85) + " gram</strong>";
       } else if (cfg.mode === "income") {
         nisab.innerHTML = "Nisab bulanan: <strong>RM" + moneyParts(cfg.nisab_month) + "</strong>";
       } else {
@@ -158,6 +163,28 @@
       wajib = zakat > 0;
       formula = "Formula: amaun terus RM" + moneyParts(zakat);
       if (!hintText) hintText = "Kiraan: amaun yang diisi";
+    } else if (cfg.mode === "gold") {
+      var karatEl = root.querySelector(".js-rz-calc-karat");
+      var grams = num(root.querySelector(".js-rz-calc-grams"));
+      var price = 0;
+      if (karatEl && karatEl.options[karatEl.selectedIndex]) {
+        price = parseFloat(karatEl.options[karatEl.selectedIndex].getAttribute("data-price") || "0") || 0;
+      }
+      var nilaiEmas = grams * price;
+      var valueEl = root.querySelector(".js-rz-calc-gold-value");
+      if (valueEl) valueEl.value = moneyParts(nilaiEmas);
+      var nisabG = cfg.gold_nisab_grams > 0 ? cfg.gold_nisab_grams : 85;
+      wajib = grams >= nisabG;
+      zakat = wajib ? nilaiEmas * (cfg.rate / 100) : 0;
+      formula = wajib
+        ? "Formula: (" + trimRate(grams) + "g × RM" + moneyParts(price) + " × " + trimRate(cfg.rate) + "%)"
+        : "Tidak mencapai nisab " + trimRate(nisabG) + " gram";
+      if (!hintText) hintText = "Kiraan: berat × harga segram LZS. Zakat 2.5% jika ≥ " + trimRate(nisabG) + "g";
+      var goldMsg = root.querySelector(".js-rz-calc-gold-msg");
+      if (goldMsg) {
+        goldMsg.hidden = wajib;
+        goldMsg.textContent = "Anda tidak layak dikenakan zakat kerana tidak mencapai nisab zakat emas " + trimRate(nisabG) + " gram.";
+      }
     } else {
       var nilai = num(root.querySelector(".js-rz-calc-nilai"));
       zakat = nilai * (cfg.rate / 100);
@@ -165,6 +192,9 @@
       formula = "Formula: (RM" + moneyParts(nilai) + " × " + trimRate(cfg.rate) + "%)";
       if (!hintText) hintText = "Kiraan: Nilai × " + trimRate(cfg.rate) + "%";
     }
+
+    var goldMsgHide = root.querySelector(".js-rz-calc-gold-msg");
+    if (goldMsgHide && cfg.mode !== "gold") goldMsgHide.hidden = true;
 
     if (!wajib) zakat = 0;
     if (hint) hint.textContent = hintText;

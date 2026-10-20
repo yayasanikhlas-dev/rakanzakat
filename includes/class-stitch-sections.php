@@ -492,9 +492,11 @@ class RakanZakat_Stitch_Sections {
 		if ( 'lain' === $key ) {
 			$key = 'lain-lain';
 		}
-		$modes = array( 'income', 'amount', 'head', 'flat' );
+		$modes = array( 'income', 'amount', 'head', 'flat', 'gold' );
 		$mode  = isset( $item['mode'] ) ? (string) $item['mode'] : '';
-		if ( ! in_array( $mode, $modes, true ) ) {
+		if ( 'emas' === $key ) {
+			$mode = 'gold';
+		} elseif ( ! in_array( $mode, $modes, true ) ) {
 			if ( 'pendapatan' === $key ) {
 				$mode = 'income';
 			} elseif ( 'fitrah' === $key ) {
@@ -533,11 +535,67 @@ class RakanZakat_Stitch_Sections {
 			'field_b_label' => (string) ( $item['field_b_label'] ?? 'Tolakan Had Kifayah (RM)' ),
 			'field_a_value' => (float) ( $item['field_a_value'] ?? 5000 ),
 			'field_b_value' => (float) ( $item['field_b_value'] ?? 2500 ),
-			'amount_label'  => $amount_label,
-			'amount_value'  => (float) ( $item['amount_value'] ?? ( 'head' === $mode ? 1 : 0 ) ),
-			'period'        => $period,
-			'hint'          => $hint,
+			'amount_label'      => $amount_label,
+			'amount_value'      => (float) ( $item['amount_value'] ?? ( 'head' === $mode ? 1 : 0 ) ),
+			'period'            => $period,
+			'hint'              => $hint,
+			'gold_nisab_grams'  => (float) ( $item['gold_nisab_grams'] ?? 85 ),
 		);
+	}
+
+	public static function default_gold_prices() {
+		return array(
+			array(
+				'karat'  => '24 K',
+				'purity' => '999',
+				'price'  => 678.67,
+			),
+			array(
+				'karat'  => '23 K',
+				'purity' => '950',
+				'price'  => 644.74,
+			),
+			array(
+				'karat'  => '22 K',
+				'purity' => '916',
+				'price'  => 621.66,
+			),
+			array(
+				'karat'  => '21 K',
+				'purity' => '875',
+				'price'  => 593.84,
+			),
+			array(
+				'karat'  => '20 K',
+				'purity' => '835',
+				'price'  => 566.69,
+			),
+			array(
+				'karat'  => '18 K',
+				'purity' => '750',
+				'price'  => 509.00,
+			),
+		);
+	}
+
+	public static function gold_prices_from_args( $args ) {
+		$rows = isset( $args['gold_prices'] ) && is_array( $args['gold_prices'] ) ? $args['gold_prices'] : array();
+		$out  = array();
+		foreach ( $rows as $row ) {
+			if ( ! is_array( $row ) ) {
+				continue;
+			}
+			$karat = trim( (string) ( $row['karat'] ?? '' ) );
+			if ( '' === $karat ) {
+				continue;
+			}
+			$out[] = array(
+				'karat'  => $karat,
+				'purity' => trim( (string) ( $row['purity'] ?? '' ) ),
+				'price'  => round( (float) ( $row['price'] ?? 0 ), 2 ),
+			);
+		}
+		return $out ? $out : self::default_gold_prices();
 	}
 
 	public static function calc_rate_chip( $cfg ) {
@@ -602,12 +660,17 @@ class RakanZakat_Stitch_Sections {
 				$item['skip_nisab']   = 'yes';
 				$item['amount_label'] = 'Amaun (RM)';
 				$item['period']       = '';
+			} elseif ( 'emas' === $key ) {
+				$item['mode']              = 'gold';
+				$item['gold_nisab_grams']  = 85;
+				$item['amount_label']      = 'Berat emas (gram)';
+				$item['period']            = '/ setahun';
+				$item['hint']              = 'Nisab 85 gram. Nilai = berat × harga segram LZS.';
 			} else {
 				$item['mode'] = 'amount';
 				$labels       = array(
 					'perniagaan' => 'Nilai bersih aset (RM)',
 					'simpanan'   => 'Baki terendah (RM)',
-					'emas'       => 'Nilai emas (RM)',
 					'saham'      => 'Nilai portfolio (RM)',
 					'kwsp'       => 'Jumlah pengeluaran (RM)',
 					'pertanian'  => 'Nilai hasil (RM)',
@@ -653,6 +716,10 @@ class RakanZakat_Stitch_Sections {
 		};
 		$uid     = function_exists( 'wp_unique_id' ) ? wp_unique_id( 'rz-calc-type-' ) : uniqid( 'rz-calc-type-', false );
 		$income  = 'income' === $first['mode'];
+		$gold    = 'gold' === $first['mode'];
+		$gold_rows = self::gold_prices_from_args( $args );
+		$gold_note = trim( (string) ( $args['gold_note'] ?? 'Harga emas yang digunakan bagi tujuan kiraan zakat adalah berdasarkan harga emas semasa yang ditetapkan oleh Lembaga Zakat Selangor (LZS) dan tertakluk kepada perubahan dari semasa ke semasa.' ) );
+		$gold_src  = self::href( $args['gold_source'] ?? '', 'https://www.zakatselangor.com.my/info-semasa-nisab-emas-perak/' );
 		ob_start();
 		?>
 		<section class="rzs rzs-calc">
@@ -677,7 +744,7 @@ class RakanZakat_Stitch_Sections {
 						</ul>
 					<?php endif; ?>
 				</div>
-				<form class="rzs-calc-card js-rz-calc" data-rate="<?php echo esc_attr( $first['rate'] ); ?>" data-nisab-year="<?php echo esc_attr( $first['nisab_year'] ); ?>" data-nisab-month="<?php echo esc_attr( $first['nisab_month'] ); ?>" action="<?php echo esc_url( $pay_url ); ?>">
+				<form class="rzs-calc-card js-rz-calc" data-rate="<?php echo esc_attr( $first['rate'] ); ?>" data-nisab-year="<?php echo esc_attr( $first['nisab_year'] ); ?>" data-nisab-month="<?php echo esc_attr( $first['nisab_month'] ); ?>" data-gold-prices="<?php echo esc_attr( wp_json_encode( $gold_rows ) ); ?>" action="<?php echo esc_url( $pay_url ); ?>">
 					<div class="rzs-calc-card__head">
 						<div class="rzs-calc-card__title">
 							<span class="rzs-calc-card__icon"><?php echo self::icon( 'calc' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></span>
@@ -711,15 +778,66 @@ class RakanZakat_Stitch_Sections {
 							<input class="js-rz-calc-kifayah" type="number" inputmode="decimal" min="0" step="0.01" value="<?php echo esc_attr( number_format( $first['field_b_value'], 2, '.', '' ) ); ?>">
 						</label>
 					</div>
-					<div class="js-rz-calc-amount rzs-calc-fields"<?php echo $income ? ' hidden' : ''; ?>>
+					<div class="js-rz-calc-amount rzs-calc-fields"<?php echo ( $income || $gold ) ? ' hidden' : ''; ?>>
 						<label><span class="js-rz-calc-nilai-label"><?php echo esc_html( $first['amount_label'] ); ?></span>
 							<input class="js-rz-calc-nilai" type="number" inputmode="decimal" min="0" step="0.01" value="<?php echo esc_attr( number_format( $first['amount_value'], 2, '.', '' ) ); ?>">
 						</label>
+					</div>
+					<div class="js-rz-calc-gold"<?php echo $gold ? '' : ' hidden'; ?>>
+						<div class="rzs-gold-table-wrap">
+							<h3 class="rzs-gold-table__title"><?php echo esc_html( $args['gold_table_title'] ?? 'Harga Emas Semasa' ); ?></h3>
+							<div class="rzs-gold-table-scroll">
+								<table class="rzs-gold-table">
+									<thead>
+										<tr>
+											<th>Bil</th>
+											<th>Ketulenan (Karat)</th>
+											<th>Jenis Emas</th>
+											<th>Harga segram</th>
+										</tr>
+									</thead>
+									<tbody>
+										<?php foreach ( $gold_rows as $i => $row ) : ?>
+											<tr>
+												<td><?php echo esc_html( (string) ( $i + 1 ) ); ?>.</td>
+												<td><?php echo esc_html( $row['karat'] ); ?></td>
+												<td><?php echo esc_html( $row['purity'] ); ?></td>
+												<td>RM <?php echo esc_html( $fmt( $row['price'] ) ); ?></td>
+											</tr>
+										<?php endforeach; ?>
+									</tbody>
+								</table>
+							</div>
+							<?php if ( $gold_note ) : ?>
+								<p class="rzs-gold-table__note"><?php echo esc_html( $gold_note ); ?></p>
+							<?php endif; ?>
+							<?php if ( $gold_src ) : ?>
+								<p class="rzs-gold-table__src">Sumber: <a href="<?php echo esc_url( $gold_src ); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html( $gold_src ); ?></a></p>
+							<?php endif; ?>
+						</div>
+						<div class="rzs-calc-fields rzs-calc-fields--gold">
+							<label>Ketulenan emas
+								<select class="js-rz-calc-karat">
+									<?php foreach ( $gold_rows as $row ) : ?>
+										<option value="<?php echo esc_attr( $row['karat'] ); ?>" data-price="<?php echo esc_attr( $row['price'] ); ?>"><?php echo esc_html( $row['karat'] . ( $row['purity'] ? ' (' . $row['purity'] . ')' : '' ) ); ?></option>
+									<?php endforeach; ?>
+								</select>
+							</label>
+							<label>Berat emas dimiliki (gram)
+								<input class="js-rz-calc-grams" type="number" inputmode="decimal" min="0" step="0.01" value="0">
+							</label>
+							<label>Nilai semasa emas (RM)
+								<input class="js-rz-calc-gold-value" type="text" readonly value="0.00">
+							</label>
+						</div>
+						<p class="js-rz-calc-gold-msg rzs-gold-msg">Anda tidak layak dikenakan zakat kerana tidak mencapai nisab zakat emas 85 gram.</p>
 					</div>
 					<div class="rzs-calc-notes">
 						<span class="js-rz-calc-nisab"><?php
 						if ( ! empty( $first['skip_nisab'] ) ) {
 							echo 'Tiada syarat nisab';
+						} elseif ( $gold ) {
+							echo 'Nisab emas: <strong>' . esc_html( self::calc_trim_num( $first['gold_nisab_grams'] ?? 85 ) ) . ' gram</strong>';
 						} elseif ( $income ) {
 							echo 'Nisab bulanan: <strong>RM' . esc_html( $fmt( $first['nisab_month'] ) ) . '</strong>';
 						} else {

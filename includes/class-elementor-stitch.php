@@ -1662,6 +1662,7 @@ class RakanZakat_Elementor_Calc_Widget extends RakanZakat_Elementor_Stitch_Base 
 					'amount' => __( 'Nilai RM x kadar %', 'rakanzakat' ),
 					'head'   => __( 'Fitrah: bilangan x kadar RM', 'rakanzakat' ),
 					'flat'   => __( 'Amaun terus (tanpa darab kadar)', 'rakanzakat' ),
+					'gold'   => __( 'Emas: berat gram x harga LZS, nisab 85g', 'rakanzakat' ),
 				),
 			)
 		);
@@ -1696,6 +1697,17 @@ class RakanZakat_Elementor_Calc_Widget extends RakanZakat_Elementor_Stitch_Base 
 				'min'       => 0,
 				'step'      => 0.01,
 				'condition' => array( 'skip_nisab!' => 'yes' ),
+			)
+		);
+		$types->add_control(
+			'gold_nisab_grams',
+			array(
+				'label'     => __( 'Nisab emas (gram)', 'rakanzakat' ),
+				'type'      => \Elementor\Controls_Manager::NUMBER,
+				'default'   => 85,
+				'min'       => 0,
+				'step'      => 0.01,
+				'condition' => array( 'zakat_key' => 'emas' ),
 			)
 		);
 		$types->add_control(
@@ -1830,13 +1842,14 @@ class RakanZakat_Elementor_Calc_Widget extends RakanZakat_Elementor_Stitch_Base 
 						'period'       => '/ setahun',
 					),
 					array(
-						'zakat_key'    => 'emas',
-						'label'        => 'Zakat Emas',
-						'mode'         => 'amount',
-						'rate'         => 2.5,
-						'nisab_year'   => 24198,
-						'amount_label' => 'Nilai emas (RM)',
-						'period'       => '/ setahun',
+						'zakat_key'         => 'emas',
+						'label'             => 'Zakat Emas',
+						'mode'              => 'gold',
+						'rate'              => 2.5,
+						'gold_nisab_grams'  => 85,
+						'amount_label'      => 'Berat emas (gram)',
+						'period'            => '/ setahun',
+						'hint'              => 'Nisab 85 gram. Nilai = berat × harga segram LZS.',
 					),
 					array(
 						'zakat_key'    => 'saham',
@@ -1883,6 +1896,70 @@ class RakanZakat_Elementor_Calc_Widget extends RakanZakat_Elementor_Stitch_Base 
 						'amount_label' => 'Amaun (RM)',
 						'period'       => '',
 					),
+				),
+			)
+		);
+		$gold_prices = new \Elementor\Repeater();
+		$gold_prices->add_control(
+			'karat',
+			array(
+				'label'   => __( 'Karat', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::TEXT,
+				'default' => '24 K',
+			)
+		);
+		$gold_prices->add_control(
+			'purity',
+			array(
+				'label'   => __( 'Jenis emas (keaslian)', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::TEXT,
+				'default' => '999',
+			)
+		);
+		$gold_prices->add_control(
+			'price',
+			array(
+				'label'   => __( 'Harga segram (RM)', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::NUMBER,
+				'default' => 678.67,
+				'min'     => 0,
+				'step'    => 0.01,
+			)
+		);
+		$this->add_control(
+			'gold_table_title',
+			array(
+				'label'   => __( 'Tajuk jadual emas', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::TEXT,
+				'default' => 'Harga Emas Semasa',
+			)
+		);
+		$this->add_control(
+			'gold_prices',
+			array(
+				'label'       => __( 'Harga emas LZS', 'rakanzakat' ),
+				'description' => __( 'Kemas kini bila LZS tukar harga. Dipakai bila jenis Zakat Emas dipilih.', 'rakanzakat' ),
+				'type'        => \Elementor\Controls_Manager::REPEATER,
+				'fields'      => $gold_prices->get_controls(),
+				'title_field' => '{{{ karat }}} — RM {{{ price }}}',
+				'default'     => RakanZakat_Stitch_Sections::default_gold_prices(),
+			)
+		);
+		$this->add_control(
+			'gold_note',
+			array(
+				'label'   => __( 'Nota harga emas', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::TEXTAREA,
+				'default' => 'Harga emas yang digunakan bagi tujuan kiraan zakat adalah berdasarkan harga emas semasa yang ditetapkan oleh Lembaga Zakat Selangor (LZS) dan tertakluk kepada perubahan dari semasa ke semasa.',
+			)
+		);
+		$this->add_control(
+			'gold_source',
+			array(
+				'label'   => __( 'URL sumber harga emas', 'rakanzakat' ),
+				'type'    => \Elementor\Controls_Manager::URL,
+				'default' => array(
+					'url' => 'https://www.zakatselangor.com.my/info-semasa-nisab-emas-perak/',
 				),
 			)
 		);
