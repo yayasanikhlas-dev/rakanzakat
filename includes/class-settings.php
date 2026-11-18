@@ -25,7 +25,7 @@ class RakanZakat_Settings {
 			'github_repo'     => 'yayasanikhlas-dev/rakanzakat',
 			'github_token'    => '',
 			'update_json_url' => '',
-			'auto_update'     => 1,
+			'auto_update'     => 0,
 			'brand_name'      => 'Rakan Zakat',
 			'brand_tagline'   => 'Saluran rasmi bayar zakat',
 			'brand_badge'     => 'LZS (PA 2928)',
@@ -62,6 +62,27 @@ class RakanZakat_Settings {
 	public static function update( $data ) {
 		$current = self::get_all();
 		update_option( self::OPTION, array_merge( $current, $data ) );
+	}
+
+	/**
+	 * Client IP. Forwarded headers are only trusted when the site opts in with
+	 * define( 'RAKANZAKAT_TRUST_PROXY', true ) (e.g. behind Cloudflare).
+	 */
+	public static function client_ip() {
+		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
+		if ( defined( 'RAKANZAKAT_TRUST_PROXY' ) && RAKANZAKAT_TRUST_PROXY ) {
+			foreach ( array( 'HTTP_CF_CONNECTING_IP', 'HTTP_X_FORWARDED_FOR' ) as $header ) {
+				if ( empty( $_SERVER[ $header ] ) ) {
+					continue;
+				}
+				$parts = explode( ',', sanitize_text_field( wp_unslash( $_SERVER[ $header ] ) ) );
+				$cand  = trim( $parts[0] );
+				if ( filter_var( $cand, FILTER_VALIDATE_IP ) ) {
+					return $cand;
+				}
+			}
+		}
+		return $ip;
 	}
 
 	public static function id_types() {

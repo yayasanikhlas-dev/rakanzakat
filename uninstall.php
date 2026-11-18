@@ -15,6 +15,8 @@ $tables = array(
 	$wpdb->prefix . 'rz_daily_stats',
 	$wpdb->prefix . 'rz_campaigns',
 	$wpdb->prefix . 'rz_ad_spend',
+	$wpdb->prefix . 'rz_affiliates',
+	$wpdb->prefix . 'rz_payouts',
 );
 
 foreach ( $tables as $table ) {
@@ -24,4 +26,7 @@ foreach ( $tables as $table ) {
 delete_option( 'rakanzakat_settings' );
 delete_option( 'rakanzakat_db_version' );
 delete_option( 'rakanzakat_pages' );
+delete_option( 'rakanzakat_rewrite' );
+remove_role( 'rz_manager' );
+remove_role( 'rz_affiliate' );
 wp_clear_scheduled_hook( 'rakanzakat_daily_rollup' );

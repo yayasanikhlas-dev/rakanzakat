@@ -103,6 +103,9 @@ class RakanZakat_REST {
 		}
 
 		$valid = RakanZakat_Billplz::verify_signature( $params );
+		if ( ! $valid ) {
+			$paid = false;
+		}
 		if ( $valid && $bill_id ) {
 			$payload = array(
 				'id'     => $bill_id,
@@ -110,6 +113,12 @@ class RakanZakat_REST {
 				'paid_at'=> is_array( $billplz ) ? ( $billplz['paid_at'] ?? '' ) : '',
 			);
 			RakanZakat_Payments::apply_callback( $payload );
+		}
+
+		$row   = $bill_id ? RakanZakat_Payments::get_by_bill( $bill_id ) : null;
+		$token = $row && ! empty( $row->receipt_token ) ? $row->receipt_token : '';
+		if ( $row ) {
+			$paid = 'paid' === $row->status;
 		}
 
 		$settings = RakanZakat_Settings::get_all();
@@ -123,7 +132,7 @@ class RakanZakat_REST {
 
 		$url = add_query_arg(
 			array(
-				'rz_bill'   => rawurlencode( $bill_id ),
+				'rz_token'  => $token,
 				'rz_status' => $paid ? 'paid' : 'failed',
 			),
 			$url
