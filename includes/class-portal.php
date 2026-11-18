@@ -224,6 +224,22 @@ class RakanZakat_Portal {
 			exit;
 		}
 
+		if ( 'add_admin' === $action && current_user_can( 'manage_options' ) ) {
+			check_admin_referer( 'rz_portal_users' );
+			$result = self::create_portal_admin( wp_unslash( $_POST ) );
+			$args   = is_wp_error( $result ) ? array( 'err' => $result->get_error_message() ) : array( 'ok' => '1' );
+			wp_safe_redirect( add_query_arg( $args, self::url( 'admin', 'pengguna' ) ) );
+			exit;
+		}
+
+		if ( 'remove_admin' === $action && current_user_can( 'manage_options' ) ) {
+			check_admin_referer( 'rz_portal_users' );
+			$result = self::remove_portal_admin( (int) ( $_POST['user_id'] ?? 0 ) );
+			$args   = is_wp_error( $result ) ? array( 'err' => $result->get_error_message() ) : array( 'ok' => '1' );
+			wp_safe_redirect( add_query_arg( $args, self::url( 'admin', 'pengguna' ) ) );
+			exit;
+		}
+
 		if ( 'payout' === $action && self::can_admin() ) {
 			check_admin_referer( 'rz_portal_payout' );
 			$result = RakanZakat_Affiliates::pay_unpaid( (int) ( $_POST['affiliate_id'] ?? 0 ), wp_unslash( $_POST['notes'] ?? '' ) );
@@ -414,7 +430,7 @@ class RakanZakat_Portal {
 	}
 
 	private static function admin_nav() {
-		return array(
+		$items = array(
 			'dashboard'  => array( 'label' => 'Dashboard', 'icon' => 'dashboard' ),
 			'kutipan'    => array( 'label' => 'Kutipan', 'icon' => 'payments' ),
 			'pelawat'    => array( 'label' => 'Pelawat', 'icon' => 'group' ),
@@ -422,6 +438,10 @@ class RakanZakat_Portal {
 			'affiliates' => array( 'label' => 'Affiliates', 'icon' => 'badge' ),
 			'tetapan'    => array( 'label' => 'Tetapan', 'icon' => 'settings' ),
 		);
+		if ( current_user_can( 'manage_options' ) ) {
+			$items['pengguna'] = array( 'label' => 'Pengguna', 'icon' => 'manage_accounts' );
+		}
+		return $items;
 	}
 
 	private static function affiliate_nav() {
@@ -754,6 +774,84 @@ document.addEventListener("click", function (e) {
 		echo '<div class="rzp-modal" id="rzp-payout"><div class="rzp-modal__box"><h2>Sahkan Pembayaran Komisen</h2><p class="rzp-muted">Bayar <strong id="rzp-pay-amt"></strong> kepada <strong id="rzp-pay-name"></strong>?</p><form method="post">';
 		wp_nonce_field( 'rz_portal_payout' );
 		echo '<input type="hidden" name="rz_portal_action" value="payout"><input type="hidden" name="affiliate_id" value=""><div style="display:flex;gap:8px;margin-top:16px"><button type="button" class="rzp-btn rzp-btn--ghost js-rzp-close">Batal</button><button class="rzp-btn rzp-btn--gold">Ya, Sahkan &amp; Bayar</button></div></form></div></div>';
+	}
+
+	private static function create_portal_admin( $data ) {
+		$email    = sanitize_email( $data['email'] ?? '' );
+		$name     = sanitize_text_field( $data['name'] ?? '' );
+		$password = (string) ( $data['password'] ?? '' );
+		if ( ! is_email( $email ) ) {
+			return new WP_Error( 'rz_adm_email', __( 'Emel tidak sah.', 'rakanzakat' ) );
+		}
+		if ( strlen( $name ) < 2 ) {
+			return new WP_Error( 'rz_adm_name', __( 'Sila masukkan nama.', 'rakanzakat' ) );
+		}
+		if ( strlen( $password ) < 8 ) {
+			return new WP_Error( 'rz_adm_pass', __( 'Katalaluan sekurang-kurangnya 8 aksara.', 'rakanzakat' ) );
+		}
+		if ( email_exists( $email ) ) {
+			return new WP_Error( 'rz_adm_exists', __( 'Emel ini sudah berdaftar. Guna emel lain.', 'rakanzakat' ) );
+		}
+		$user_id = wp_insert_user(
+			array(
+				'user_login'   => sanitize_user( strtok( $email, '@' ) . wp_generate_password( 3, false, false ), true ),
+				'user_email'   => $email,
+				'user_pass'    => $password,
+				'display_name' => $name,
+				'role'         => 'rz_manager',
+			)
+		);
+		return is_wp_error( $user_id ) ? $user_id : (int) $user_id;
+	}
+
+	private static function remove_portal_admin( $user_id ) {
+		$user = $user_id ? get_userdata( $user_id ) : false;
+		if ( ! $user || ! in_array( 'rz_manager', (array) $user->roles, true ) ) {
+			return new WP_Error( 'rz_adm_bad', __( 'Pengguna tidak sah.', 'rakanzakat' ) );
+		}
+		if ( get_current_user_id() === (int) $user->ID ) {
+			return new WP_Error( 'rz_adm_self', __( 'Anda tidak boleh buang akses sendiri.', 'rakanzakat' ) );
+		}
+		if ( user_can( $user, 'manage_options' ) ) {
+			return new WP_Error( 'rz_adm_wpadmin', __( 'Pengguna ini Administrator WordPress.', 'rakanzakat' ) );
+		}
+		$user->set_role( 'subscriber' );
+		return true;
+	}
+
+	public static function view_admin_pengguna() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'Akses ditolak.', 'rakanzakat' ), 403 );
+		}
+		$admins = get_users( array( 'role' => 'rz_manager', 'orderby' => 'registered', 'order' => 'DESC' ) );
+		$wp_admins = get_users( array( 'role' => 'administrator', 'orderby' => 'display_name' ) );
+		self::page_head( 'Pengguna', 'Tambah atau buang akses admin portal. Affiliate diurus di menu Affiliates.', 'Pengurusan Akses' );
+		echo '<div class="rzp-card" style="margin-bottom:16px"><div class="rzp-card__title">' . self::mat( 'person_add' ) . '<div><h2>Tambah Admin Baru</h2><p>Boleh akses /admin (kutipan, iklan, affiliate, tetapan)</p></div></div>';
+		echo '<form method="post" class="rzp-aff-form">';
+		wp_nonce_field( 'rz_portal_users' );
+		echo '<input type="hidden" name="rz_portal_action" value="add_admin">';
+		echo '<label>Nama Penuh<input name="name" required></label>';
+		echo '<label>Emel<input type="email" name="email" required></label>';
+		echo '<label>Katalaluan<input type="password" name="password" required minlength="8" autocomplete="new-password"><button type="submit" class="rzp-btn rzp-btn--gold" style="margin-top:8px">Cipta Admin</button></label></form></div>';
+
+		echo '<div class="rzp-card" style="margin-bottom:16px"><div class="rzp-card__title"><div><h2>Admin Portal</h2></div></div><table class="rzp-table"><thead><tr><th>Nama &amp; Emel</th><th>Didaftar</th><th></th></tr></thead><tbody>';
+		if ( ! $admins ) {
+			echo '<tr><td colspan="3">Belum ada admin portal.</td></tr>';
+		}
+		foreach ( $admins as $u ) {
+			echo '<tr><td class="rzp-name">' . esc_html( $u->display_name ) . '<small>' . esc_html( $u->user_email ) . '</small></td><td>' . esc_html( mysql2date( 'j M Y', $u->user_registered ) ) . '</td><td>';
+			echo '<form method="post" onsubmit="return confirm(\'Buang akses admin pengguna ini?\')">';
+			wp_nonce_field( 'rz_portal_users' );
+			echo '<input type="hidden" name="rz_portal_action" value="remove_admin"><input type="hidden" name="user_id" value="' . esc_attr( $u->ID ) . '"><button class="rzp-btn rzp-btn--ghost">Buang akses</button></form>';
+			echo '</td></tr>';
+		}
+		echo '</tbody></table></div>';
+
+		echo '<div class="rzp-card"><div class="rzp-card__title"><div><h2>Administrator WordPress</h2><p>Mempunyai akses automatik. Diurus di wp-admin → Users.</p></div></div><table class="rzp-table"><tbody>';
+		foreach ( $wp_admins as $u ) {
+			echo '<tr><td class="rzp-name">' . esc_html( $u->display_name ) . '<small>' . esc_html( $u->user_email ) . '</small></td></tr>';
+		}
+		echo '</tbody></table></div>';
 	}
 
 	public static function view_admin_tetapan() {
