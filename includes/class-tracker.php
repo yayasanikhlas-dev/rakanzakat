@@ -54,8 +54,15 @@ class RakanZakat_Tracker {
 		}
 		$affiliate_id = RakanZakat_Affiliates::match_id( $ref, $input['utm_source'] ?? '', $input['utm_campaign'] ?? '' );
 
-		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
+		$ip = RakanZakat_Settings::client_ip();
 		$ua = isset( $_SERVER['HTTP_USER_AGENT'] ) ? substr( sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ), 0, 255 ) : '';
+
+		$rl_key   = 'rz_trk_' . md5( $ip );
+		$rl_count = (int) get_transient( $rl_key );
+		if ( $rl_count >= 120 ) {
+			return false;
+		}
+		set_transient( $rl_key, $rl_count + 1, 10 * MINUTE_IN_SECONDS );
 
 		global $wpdb;
 		$is_new = (int) ( $input['is_new_session'] ?? 0 ) ? 1 : 0;

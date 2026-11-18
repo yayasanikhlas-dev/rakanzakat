@@ -287,9 +287,9 @@ class RakanZakat_Shortcode {
 	}
 
 	public static function receipt() {
-		$bill_id = isset( $_GET['rz_bill'] ) ? sanitize_text_field( wp_unslash( $_GET['rz_bill'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$token   = isset( $_GET['rz_token'] ) ? sanitize_text_field( wp_unslash( $_GET['rz_token'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$status  = isset( $_GET['rz_status'] ) ? sanitize_key( wp_unslash( $_GET['rz_status'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$row     = $bill_id ? RakanZakat_Payments::get_by_bill( $bill_id ) : null;
+		$row     = $token ? RakanZakat_Payments::get_by_token( $token ) : null;
 		$types   = RakanZakat_Settings::zakat_types();
 
 		ob_start();
@@ -303,7 +303,7 @@ class RakanZakat_Shortcode {
 					<div><dt>Rujukan</dt><dd><?php echo esc_html( $row->bill_id ); ?></dd></div>
 					<div><dt>Nama</dt><dd><?php echo esc_html( $row->payer_name ); ?></dd></div>
 					<?php if ( ! empty( $row->id_number ) ) : ?>
-						<div><dt>No. Pengenalan</dt><dd><?php echo esc_html( $row->id_number ); ?></dd></div>
+						<div><dt>No. Pengenalan</dt><dd><?php echo esc_html( RakanZakat_Payments::mask_id( $row->id_number ) ); ?></dd></div>
 					<?php endif; ?>
 					<div><dt>Jenis</dt><dd><?php echo esc_html( $types[ $row->zakat_type ] ?? $row->zakat_type ); ?></dd></div>
 					<div><dt>Amaun</dt><dd><?php echo esc_html( RakanZakat_Settings::format_money( $row->paid_amount_sen ?: $row->amount_sen ) ); ?></dd></div>

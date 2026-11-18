@@ -9,7 +9,7 @@ defined( 'ABSPATH' ) || exit;
 
 class RakanZakat_Activator {
 
-	const DB_VERSION = '1.4.0';
+	const DB_VERSION = '1.5.0';
 
 	public static function activate() {
 		self::create_tables();
@@ -35,14 +35,6 @@ class RakanZakat_Activator {
 	}
 
 	public static function maybe_upgrade() {
-		$mgr = get_role( 'rz_manager' );
-		if ( $mgr ) {
-			foreach ( self::manager_caps() as $cap => $grant ) {
-				if ( $grant ) {
-					$mgr->add_cap( $cap );
-				}
-			}
-		}
 		if ( get_option( 'rakanzakat_db_version' ) !== self::DB_VERSION ) {
 			self::create_tables();
 			self::register_roles();
@@ -66,6 +58,7 @@ class RakanZakat_Activator {
 		$sql[] = "CREATE TABLE {$p}rz_payments (
 			id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 			bill_id varchar(64) NOT NULL DEFAULT '',
+			receipt_token varchar(64) NOT NULL DEFAULT '',
 			collection_id varchar(64) NOT NULL DEFAULT '',
 			payer_name varchar(191) NOT NULL DEFAULT '',
 			payer_email varchar(191) NOT NULL DEFAULT '',
@@ -103,6 +96,7 @@ class RakanZakat_Activator {
 			updated_at datetime NOT NULL,
 			PRIMARY KEY  (id),
 			UNIQUE KEY bill_id (bill_id),
+			KEY receipt_token (receipt_token),
 			KEY status_paid (status, paid_at),
 			KEY campaign_id (campaign_id),
 			KEY affiliate_id (affiliate_id),
@@ -278,7 +272,6 @@ class RakanZakat_Activator {
 			'read_private_pages'      => true,
 			'moderate_comments'       => true,
 			'manage_categories'       => true,
-			'unfiltered_html'         => true,
 			'rz_manage_portal'        => true,
 		);
 		$editor = get_role( 'editor' );
@@ -290,8 +283,10 @@ class RakanZakat_Activator {
 			}
 			$caps['rz_manage_portal'] = true;
 		}
-		$caps['activate_plugins'] = true;
-		$caps['update_plugins']   = true;
+		// Never grant privileged caps inherited from editor or elsewhere.
+		foreach ( array( 'unfiltered_html', 'activate_plugins', 'update_plugins', 'install_plugins', 'edit_plugins', 'manage_options' ) as $cap ) {
+			unset( $caps[ $cap ] );
+		}
 		return $caps;
 	}
 
@@ -307,6 +302,9 @@ class RakanZakat_Activator {
 				if ( $grant ) {
 					$mgr->add_cap( $cap );
 				}
+			}
+			foreach ( array( 'unfiltered_html', 'activate_plugins', 'update_plugins' ) as $cap ) {
+				$mgr->remove_cap( $cap );
 			}
 		}
 		add_role(

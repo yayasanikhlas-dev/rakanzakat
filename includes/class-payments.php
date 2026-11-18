@@ -86,7 +86,7 @@ class RakanZakat_Payments {
 			);
 		}
 
-		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
+		$ip = RakanZakat_Settings::client_ip();
 		if ( self::rate_limited( $ip ) ) {
 			return new WP_Error( 'rz_rate', __( 'Terlalu banyak cubaan. Sila cuba sebentar lagi.', 'rakanzakat' ), array( 'status' => 429 ) );
 		}
@@ -100,12 +100,14 @@ class RakanZakat_Payments {
 		$affiliate_id = RakanZakat_Affiliates::match_id( $ref, $utm['utm_source'], $utm['utm_campaign'] );
 		$now        = current_time( 'mysql' );
 		$temp_bill  = 'tmp_' . wp_generate_password( 16, false, false );
+		$token      = wp_generate_password( 32, false, false );
 
 		global $wpdb;
 		$wpdb->insert(
 			self::table(),
 			array(
 				'bill_id'         => $temp_bill,
+				'receipt_token'   => $token,
 				'payer_name'      => $name,
 				'payer_email'     => $email,
 				'payer_mobile'    => $mobile,
@@ -194,6 +196,11 @@ class RakanZakat_Payments {
 		$paid_at     = ! empty( $params['paid_at'] ) ? self::parse_billplz_date( $params['paid_at'] ) : current_time( 'mysql' );
 		$was_paid    = 'paid' === $row->status;
 
+		// Never downgrade a payment that is already confirmed.
+		if ( $was_paid ) {
+			return true;
+		}
+
 		$data = array(
 			'status'          => $paid ? 'paid' : ( isset( $params['state'] ) ? sanitize_key( $params['state'] ) : 'pending' ),
 			'paid_amount_sen' => $paid ? $paid_amount : 0,
@@ -203,7 +210,12 @@ class RakanZakat_Payments {
 			'updated_at'      => current_time( 'mysql' ),
 		);
 
-		if ( ! empty( $params['state'] ) && ! $paid ) {
+		if ( $paid && $paid_amount < (int) $row->amount_sen ) {
+			$data['status'] = 'underpaid';
+			$paid           = false;
+		}
+
+		if ( ! empty( $params['state'] ) && ! $paid && 'underpaid' !== $data['status'] ) {
 			$data['status'] = sanitize_key( $params['state'] );
 		}
 
@@ -214,6 +226,24 @@ class RakanZakat_Payments {
 		}
 
 		return true;
+	}
+
+	public static function get_by_token( $token ) {
+		$token = (string) $token;
+		if ( ! preg_match( '/^[A-Za-z0-9]{32}$/', $token ) ) {
+			return null;
+		}
+		global $wpdb;
+		return $wpdb->get_row( $wpdb->prepare( 'SELECT * FROM ' . self::table() . ' WHERE receipt_token = %s', $token ) );
+	}
+
+	public static function mask_id( $id ) {
+		$id  = (string) $id;
+		$len = strlen( $id );
+		if ( $len <= 4 ) {
+			return str_repeat( '*', $len );
+		}
+		return str_repeat( '*', $len - 4 ) . substr( $id, -4 );
 	}
 
 	public static function get_by_bill( $bill_id ) {
@@ -348,22 +378,30 @@ class RakanZakat_Payments {
 				array(
 					$row['id'],
 					$row['bill_id'],
-					$row['payer_name'],
-					$row['payer_email'],
-					$row['payer_mobile'],
+					self::csv_safe( $row['payer_name'] ),
+					self::csv_safe( $row['payer_email'] ),
+					self::csv_safe( $row['payer_mobile'] ),
 					$row['id_type'] ?? '',
-					$row['id_number'] ?? '',
+					self::csv_safe( $row['id_number'] ?? '' ),
 					$row['zakat_type'],
 					number_format( ( (int) $row['paid_amount_sen'] ?: (int) $row['amount_sen'] ) / 100, 2, '.', '' ),
 					$row['status'],
 					$row['paid_at'],
-					$row['utm_source'],
-					$row['utm_campaign'],
+					self::csv_safe( $row['utm_source'] ),
+					self::csv_safe( $row['utm_campaign'] ),
 				)
 			);
 		}
 		fclose( $out );
 		exit;
+	}
+
+	private static function csv_safe( $value ) {
+		$value = (string) $value;
+		if ( '' !== $value && in_array( $value[0], array( '=', '+', '-', '@', "\t", "\r" ), true ) ) {
+			return "'" . $value;
+		}
+		return $value;
 	}
 
 	private static function sanitize_utm( $input ) {

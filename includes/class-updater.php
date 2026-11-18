@@ -192,7 +192,7 @@ class RakanZakat_Updater {
 		if ( ! self::is_configured() ) {
 			return false;
 		}
-		return (int) RakanZakat_Settings::get( 'auto_update', 1 ) === 1;
+		return (int) RakanZakat_Settings::get( 'auto_update', 0 ) === 1;
 	}
 
 	public static function clear_cache() {

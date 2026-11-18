@@ -218,7 +218,7 @@ class RakanZakat_Portal {
 
 		if ( 'add_affiliate' === $action && self::can_admin() ) {
 			check_admin_referer( 'rz_portal_affiliate' );
-			$result = RakanZakat_Affiliates::create( $_POST );
+			$result = RakanZakat_Affiliates::create( wp_unslash( $_POST ) );
 			$args   = is_wp_error( $result ) ? array( 'err' => $result->get_error_message() ) : array( 'ok' => '1' );
 			wp_safe_redirect( add_query_arg( $args, self::url( 'admin', 'affiliates' ) ) );
 			exit;
@@ -234,7 +234,7 @@ class RakanZakat_Portal {
 
 		if ( 'add_campaign' === $action && self::can_admin() ) {
 			check_admin_referer( 'rz_portal_roi' );
-			RakanZakat_Campaigns::create_campaign( $_POST );
+			RakanZakat_Campaigns::create_campaign( wp_unslash( $_POST ) );
 			wp_safe_redirect( add_query_arg( 'ok', '1', self::url( 'admin', 'iklan' ) ) );
 			exit;
 		}
@@ -246,8 +246,8 @@ class RakanZakat_Portal {
 					'campaign_id' => (int) ( $_POST['spend_campaign_id'] ?? 0 ),
 					'platform'    => sanitize_key( wp_unslash( $_POST['spend_platform'] ?? 'other' ) ),
 					'spend_date'  => sanitize_text_field( wp_unslash( $_POST['spend_date'] ?? '' ) ),
-					'amount'      => $_POST['spend_amount'] ?? 0,
-					'notes'       => wp_unslash( $_POST['spend_notes'] ?? '' ),
+					'amount'      => wp_unslash( $_POST['spend_amount'] ?? 0 ),
+					'notes'       => sanitize_textarea_field( wp_unslash( $_POST['spend_notes'] ?? '' ) ),
 				)
 			);
 			wp_safe_redirect( add_query_arg( 'ok', '1', self::url( 'admin', 'iklan' ) ) );
@@ -256,7 +256,7 @@ class RakanZakat_Portal {
 	}
 
 	private static function client_key() {
-		$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
+		$ip = RakanZakat_Settings::client_ip();
 		return md5( $ip );
 	}
 
