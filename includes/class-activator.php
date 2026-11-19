@@ -9,7 +9,7 @@ defined( 'ABSPATH' ) || exit;
 
 class RakanZakat_Activator {
 
-	const DB_VERSION = '1.5.1';
+	const DB_VERSION = '1.5.2';
 
 	public static function activate() {
 		self::create_tables();
@@ -284,16 +284,17 @@ class RakanZakat_Activator {
 			$caps['rz_manage_portal'] = true;
 		}
 		// Never grant these even if inherited from the editor role.
-		foreach ( array( 'unfiltered_html', 'install_plugins', 'edit_plugins', 'manage_options' ) as $cap ) {
+		foreach ( array( 'unfiltered_html', 'edit_plugins', 'manage_options' ) as $cap ) {
 			unset( $caps[ $cap ] );
 		}
 		// Managers keep access to the Plugins screen (activate / update).
 		$caps['activate_plugins'] = true;
 		$caps['update_plugins']   = true;
+		$caps['install_plugins']  = true; // Add New / Upload Plugin.
 
 		/**
-		 * Filter the capabilities of the rz_manager role. To also allow uploading
-		 * new plugins, add: $caps['install_plugins'] = true;
+		 * Filter the capabilities of the rz_manager role. To stop managers adding
+		 * plugins, use: unset( $caps['install_plugins'] );
 		 */
 		return apply_filters( 'rakanzakat_manager_caps', $caps );
 	}
@@ -311,8 +312,11 @@ class RakanZakat_Activator {
 					$mgr->add_cap( $cap );
 				}
 			}
-			foreach ( array( 'unfiltered_html' ) as $cap ) {
-				$mgr->remove_cap( $cap );
+			$granted = self::manager_caps();
+			foreach ( array( 'unfiltered_html', 'install_plugins', 'activate_plugins', 'update_plugins' ) as $cap ) {
+				if ( empty( $granted[ $cap ] ) ) {
+					$mgr->remove_cap( $cap );
+				}
 			}
 		}
 		add_role(
